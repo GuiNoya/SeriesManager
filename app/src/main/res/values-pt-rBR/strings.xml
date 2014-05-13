@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SeriesManager</string>
+    <string name="title_activity_main">SeriesManager</string>
+    <string name="title_activity_show">Shows</string>
+    <string name="title_section1">Atrasados</string>
+    <string name="title_section2">Calendário</string>
+    <string name="title_section3">Shows</string>
+    <string name="title_section4">Estatísticas</string>
+    <string name="title_show_section1">Show</string>
+    <string name="title_show_section2">Temporadas</string>
+    <string name="action_settings">Configurações</string>
+    <string name="title_activity_start">SeriesManager: O Começo</string>
+    <string name="title_activity_add_show">Adicionar Show</string>
+    <string name="search_show_title">Buscar Show</string>
+    <string name="title_activity_search">Buscar Show</string>
+
+</resources>

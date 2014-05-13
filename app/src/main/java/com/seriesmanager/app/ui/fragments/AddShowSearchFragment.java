@@ -1,0 +1,181 @@
+package com.seriesmanager.app.ui.fragments;
+
+import android.app.Activity;
+import android.content.Context;
+import android.os.Bundle;
+import android.support.v4.app.ListFragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.seriesmanager.app.Comm;
+import com.seriesmanager.app.R;
+import com.seriesmanager.app.entities.ShowSummary;
+import com.seriesmanager.app.interfaces.OnShowListInteractionListener;
+import com.seriesmanager.app.parsers.trakt.ShowExtendedParser;
+import com.seriesmanager.app.ui.dialogs.ShowSummaryDialog;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class AddShowSearchFragment extends ListFragment {
+    private static final String ARG_PARAM1 = "param1";
+    private static final String ARG_PARAM2 = "param2";
+    private static OnShowListInteractionListener mListener;
+    private String mParam1;
+    private String mParam2;
+    private ListView list;
+
+    public AddShowSearchFragment() {
+    }
+
+    public static AddShowSearchFragment newInstance(String param1, String param2) {
+        AddShowSearchFragment fragment = new AddShowSearchFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_PARAM1, param1);
+        args.putString(ARG_PARAM2, param2);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (getArguments() != null) {
+            mParam1 = getArguments().getString(ARG_PARAM1);
+            mParam2 = getArguments().getString(ARG_PARAM2);
+        }
+
+        //setListAdapter(new ShowListAdapter(getActivity(), TestContent.SHOWS));
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mListener = (OnShowListInteractionListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    @Override
+    public void onListItemClick(ListView l, View v, int position, long id) {
+        ShowSummary sh = (ShowSummary) l.getAdapter().getItem(position);
+        //Intent intent = new Intent(null, null, getActivity(), ShowActivity.class);
+        new ShowSummaryDialog(sh).show(getActivity().getSupportFragmentManager(), "");
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+        View view = inflater.inflate(R.layout.fragment_add_show_search, container, false);
+
+        list = (ListView) getActivity().findViewById(android.R.id.list);
+        List<ShowSummary> shows = new ArrayList<ShowSummary>();
+        setListAdapter(new SemiShowAdapter(getActivity(), shows));
+        final EditText editText = (EditText) getActivity().findViewById(R.id.edit_text_add_search_show);
+        Button btnSearch = (Button) getActivity().findViewById(R.id.button_search);
+        /*btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                List<ShowSummary> shows = null;
+                if (editText.getText().toString()== null) {
+                    return;
+                }
+                try {
+                    shows = new ShowSearchParser(editText.getText().toString()).get();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                WarningDialog wd = new WarningDialog("Please Wait", "Getting data");
+                wd.show(getActivity().getSupportFragmentManager(), "");
+                try {
+                    list.setAdapter(new SemiShowAdapter(getActivity(), shows));
+                    wd.dismiss();
+                } catch (Exception e) {
+                    shows = new ArrayList<ShowSummary>();
+                    list.setAdapter(new SemiShowAdapter(getActivity(), shows));
+                    wd.dismiss();
+                    new ShowSummaryDialog(new ShowSummary(0, "Network Problem", "Please enable the network."))
+                            .show(getActivity().getSupportFragmentManager(), "");
+                }
+            }
+        });*/
+
+        return view;
+    }
+
+    public interface OnFragmentInteractionListener {
+        public void onFragmentInteraction(String name, int id);
+    }
+
+    public static class SemiShowAdapter extends ArrayAdapter<ShowSummary> {
+        private final Context context;
+        private final List<ShowSummary> values;
+
+        public SemiShowAdapter(Context context, List<ShowSummary> values) {
+            super(context, R.layout.fragment_start_show_list, values);
+            this.context = context;
+            this.values = values;
+        }
+
+        @Override
+        public boolean areAllItemsEnabled() {
+            return true;
+        }
+
+        @Override
+        public boolean isEnabled(int position) {
+            return true;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View rowView = inflater.inflate(R.layout.fragment_start_show_list, parent, false);
+            final ShowSummary sh = values.get(position);
+            ((TextView) rowView.findViewById(R.id.text_start_name)).setText(sh.getName());
+            ((ImageView) rowView.findViewById(R.id.image_cover)).setImageResource(R.drawable.ic_launcher);
+            ((TextView) rowView.findViewById(R.id.text_start_summary)).setText(sh.getSummary());
+            final ImageView img = ((ImageView) rowView.findViewById(R.id.image_add));
+            img.setImageResource(R.drawable.ic_plus);
+            img.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    img.setImageResource(R.drawable.ic_correct);
+                    Toast.makeText(context, sh.getName() + " adicionada", Toast.LENGTH_SHORT).show();
+                    try {
+                        Comm.showsList.add(new ShowExtendedParser(sh.getId()).get());
+                        mListener.onShowListInteraction();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            /*rowView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    new ShowSummaryDialog(sh).show(getSupportFragmentManager(), "");
+                }
+            });*/
+
+            return rowView;
+        }
+    }
+}
