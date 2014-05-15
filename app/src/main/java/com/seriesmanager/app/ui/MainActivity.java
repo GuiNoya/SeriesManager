@@ -19,10 +19,10 @@ import android.view.ViewGroup;
 import com.seriesmanager.app.Comm;
 import com.seriesmanager.app.R;
 import com.seriesmanager.app.StartActivity;
+import com.seriesmanager.app.database.DBHelper;
 import com.seriesmanager.app.entities.Episode;
 import com.seriesmanager.app.entities.Season;
 import com.seriesmanager.app.entities.Show;
-import com.seriesmanager.app.fillers.TestContent;
 import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
 import com.seriesmanager.app.interfaces.OnShowInteractionListener;
 import com.seriesmanager.app.interfaces.OnShowListInteractionListener;
@@ -30,7 +30,6 @@ import com.seriesmanager.app.ui.fragments.CalendarFragment;
 import com.seriesmanager.app.ui.fragments.ShowFragment;
 import com.seriesmanager.app.ui.fragments.ShowOverdueFragment;
 
-import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
 
@@ -47,12 +46,15 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         Comm.mainContext = MainActivity.this;
 
-        Comm.showsList = new ArrayList<Show>();
-        Comm.showsList.addAll(TestContent.SHOWS);
+        //Comm.showsList = new ArrayList<Show>();
+        //Comm.showsList.addAll(TestContent.SHOWS);
+        Comm.showsList = new DBHelper(this, null).loadShowsAll();
 
-        Intent intent = new Intent(this, StartActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
+        if (Comm.showsList.size() == 0) {
+            Intent intent = new Intent(this, StartActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
 
         final ActionBar actionBar = getSupportActionBar();
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -76,7 +78,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                             .setTabListener(this)
             );
         }
-        Comm.mainContext = MainActivity.this;
     }
 
 
@@ -90,6 +91,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+            return true;
+        } else if (id == R.id.action_clean_db) {
+            DBHelper db = new DBHelper(this, null);
+            db.getWritableDatabase().delete("shows", null, null);
+            db.getWritableDatabase().delete("seasons", null, null);
+            db.getWritableDatabase().delete("episodes", null, null);
+            db.close();
+            refreshFragments();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -112,13 +121,21 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     protected void onPostResume() {
         super.onPostResume();
         if (isNeedingRefresh) {
-            Fragment frg = getSupportFragmentManager().findFragmentByTag("overdue");
-            ((ShowOverdueFragment) frg).notifyDataChanged();
-            frg = getSupportFragmentManager().findFragmentByTag("calendar");
-            ((CalendarFragment) frg).notifyDataChanged();
-            frg = getSupportFragmentManager().findFragmentByTag("shows");
-            ((ShowFragment) frg).notifyDataChanged();
+            refreshFragments();
         }
+    }
+
+    private void refreshFragments() {
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment frg = fm.findFragmentByTag("overdue");
+        if (frg != null)
+            ((ShowOverdueFragment) frg).notifyDataChanged();
+        frg = fm.findFragmentByTag("calendar");
+        if (frg != null)
+            ((CalendarFragment) frg).notifyDataChanged();
+        frg = fm.findFragmentByTag("shows");
+        if (frg != null)
+            ((ShowFragment) frg).notifyDataChanged();
     }
 
     @Override

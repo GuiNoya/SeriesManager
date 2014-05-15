@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.seriesmanager.app.Comm;
 import com.seriesmanager.app.R;
+import com.seriesmanager.app.database.DBHelper;
 import com.seriesmanager.app.entities.Episode;
 import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
 import com.seriesmanager.app.ui.ShowActivity;
@@ -104,6 +105,10 @@ public class CalendarAdapter extends BaseExpandableListAdapter {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (!ep.getSeason().getShow().isLoaded()) {
+                    new DBHelper(Comm.mainContext, null).loadShowExtraInfo(ep.getSeason().getShow());
+                    ep.getSeason().getShow().setLoaded(true);
+                }
                 Comm.actualSeason = ep.getSeason();
                 Comm.actualShow = ep.getSeason().getShow();
                 Intent intent = new Intent(Comm.mainContext, ShowActivity.class);

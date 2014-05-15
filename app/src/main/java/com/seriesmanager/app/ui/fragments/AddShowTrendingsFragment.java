@@ -15,6 +15,8 @@ import android.widget.Toast;
 
 import com.seriesmanager.app.Comm;
 import com.seriesmanager.app.R;
+import com.seriesmanager.app.database.DBHelper;
+import com.seriesmanager.app.entities.Show;
 import com.seriesmanager.app.entities.ShowSummary;
 import com.seriesmanager.app.interfaces.OnShowListInteractionListener;
 import com.seriesmanager.app.parsers.trakt.ShowExtendedParser;
@@ -153,7 +155,9 @@ public class AddShowTrendingsFragment extends ListFragment {
                     img.setImageResource(R.drawable.ic_correct);
                     Toast.makeText(context, sh.getName() + " adicionada", Toast.LENGTH_SHORT).show();
                     try {
-                        Comm.showsList.add(new ShowExtendedParser(sh.getId()).get());
+                        Show show = new ShowExtendedParser(sh.getId()).get();
+                        Comm.showsList.add(show);
+                        new DBHelper(getContext(), null).persistCompleteShow(show);
                         mListener.onShowListInteraction();
                     } catch (Exception e) {
                         e.printStackTrace();

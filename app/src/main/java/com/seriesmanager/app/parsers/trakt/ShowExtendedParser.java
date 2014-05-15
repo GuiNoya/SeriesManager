@@ -65,6 +65,7 @@ public class ShowExtendedParser extends AsyncTask<String, Integer, Show> {
                 Season season = new Season();
                 JSONObject jsonSeason = jsonArr.getJSONObject(i);
                 season.setSeasonNumber(jsonSeason.getInt("season"));
+                //season.setId(jsonSeason.getInt(""));
                 seasons.put(season.getSeasonNumber(), season);
                 season.setShow(show);
                 Map<Integer, Episode> episodes = new HashMap<Integer, Episode>();

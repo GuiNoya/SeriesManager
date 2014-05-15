@@ -12,6 +12,7 @@ import android.widget.ListView;
 import com.seriesmanager.app.Comm;
 import com.seriesmanager.app.R;
 import com.seriesmanager.app.adapters.OverdueAdapter;
+import com.seriesmanager.app.database.DBHelper;
 import com.seriesmanager.app.entities.Season;
 import com.seriesmanager.app.entities.Show;
 import com.seriesmanager.app.fillers.TestContent;
@@ -76,6 +77,10 @@ public class ShowOverdueFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         Show sh = (Show) l.getAdapter().getItem(position);
+        if (!sh.isLoaded()) {
+            sh = new DBHelper(Comm.mainContext, null).loadShowExtraInfo(sh);
+            sh.setLoaded(true);
+        }
         //Intent intent = new Intent(null, null, getActivity(), ShowActivity.class);
         Intent intent = new Intent(Comm.mainContext, ShowActivity.class);
         Comm.actualShow = sh;

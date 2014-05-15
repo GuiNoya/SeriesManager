@@ -12,6 +12,7 @@ import android.widget.ListView;
 import com.seriesmanager.app.Comm;
 import com.seriesmanager.app.R;
 import com.seriesmanager.app.adapters.ShowListAdapter;
+import com.seriesmanager.app.database.DBHelper;
 import com.seriesmanager.app.entities.Season;
 import com.seriesmanager.app.entities.Show;
 import com.seriesmanager.app.interfaces.OnShowListInteractionListener;
@@ -78,6 +79,12 @@ public class ShowFragment extends ListFragment {
     public void onListItemClick(ListView l, View v, int position, long id) {
         Show sh = (Show) l.getAdapter().getItem(position);
         //Intent intent = new Intent(null, null, getActivity(), ShowActivity.class);
+        /*DBHelper db = new DBHelper(Comm.mainContext, null);
+        db.persistShow(sh);*/
+        if (!sh.isLoaded()) {
+            new DBHelper(Comm.mainContext, null).loadShowExtraInfo(sh);
+            sh.setLoaded(true);
+        }
         Intent intent = new Intent(Comm.mainContext, ShowActivity.class);
         Comm.actualShow = sh;
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);

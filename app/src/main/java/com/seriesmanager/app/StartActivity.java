@@ -14,6 +14,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.seriesmanager.app.database.DBHelper;
+import com.seriesmanager.app.entities.Show;
 import com.seriesmanager.app.entities.ShowSummary;
 import com.seriesmanager.app.interfaces.OnShowListInteractionListener;
 import com.seriesmanager.app.parsers.trakt.ShowExtendedParser;
@@ -129,7 +131,9 @@ public class StartActivity extends ActionBarActivity {
                     try {
                         //TestContent.SHOWS.add(new ShowExtendedParser(sh.getId()).get());
                         //TestContent.SHOWS.add(new ShowParser(sh.getId()).get());
-                        Comm.showsList.add(new ShowExtendedParser(sh.getId()).get());
+                        Show show = new ShowExtendedParser(sh.getId()).get();
+                        Comm.showsList.add(show);
+                        new DBHelper(getContext(), null).persistCompleteShow(show);
                         ((OnShowListInteractionListener) Comm.mainContext).onShowListInteraction();
                     } catch (Exception e) {
                         e.printStackTrace();

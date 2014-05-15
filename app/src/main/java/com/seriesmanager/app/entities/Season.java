@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Season {
+    private int id;
     private Show show;
     private int seasonNumber;
     private Image cover;
@@ -25,6 +26,14 @@ public class Season {
         this.show = show;
         this.seasonNumber = seasonNumber;
         this.episodes = episodes;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public Show getShow() {

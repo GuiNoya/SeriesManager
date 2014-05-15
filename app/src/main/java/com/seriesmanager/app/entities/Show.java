@@ -20,6 +20,7 @@ public class Show {
     private List<String> genres;
     private boolean added = true;
     private int numberOverdue;
+    private boolean loaded = false;
 
     public Show() {
         this.seasons = new HashMap<Integer, Season>();
@@ -178,5 +179,13 @@ public class Show {
 
     public void setNumberOverdue(int numberOverdue) {
         this.numberOverdue = numberOverdue;
+    }
+
+    public boolean isLoaded() {
+        return loaded;
+    }
+
+    public void setLoaded(boolean loaded) {
+        this.loaded = loaded;
     }
 }
