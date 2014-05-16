@@ -208,7 +208,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public List<Show> loadShowsAll() {
         List<Show> lista = new ArrayList<Show>();
-        String query = "SELECT * FROM " + TABLE_SHOW + " ORDER BY " + COLUMN_NAME;
+        String query = "SELECT * FROM " + TABLE_SHOW + " ORDER BY " + COLUMN_FAVORITE + " DESC, "
+                + COLUMN_NAME + " ASC;";
 
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
@@ -223,6 +224,35 @@ public class DBHelper extends SQLiteOpenHelper {
 
         db.close();
         return lista;
+    }
+
+    public void updateShow(Show show) {
+        ContentValues values = new ContentValues();
+
+        //values.put(COLUMN_ID, show.getId());
+        values.put(COLUMN_NAME, show.getName());
+        values.put(COLUMN_OVERVIEW, show.getSummary());
+        values.put(COLUMN_NETWORK, show.getNetwork());
+        values.put(COLUMN_FAVORITE, show.isFavorite() ? 1 : 0);
+
+        SQLiteDatabase db = getWritableDatabase();
+        db.update(TABLE_SHOW, values, COLUMN_ID + " = " + show.getId(), null);
+        db.close();
+    }
+
+    public void updateEpisode(Episode ep) {
+        ContentValues values = new ContentValues();
+
+        //values.put(COLUMN_ID, ep.getId());
+        values.put(COLUMN_ID_FOREIGN, ep.getSeason().getId());
+        values.put(COLUMN_NUMBER, ep.getEpisodeNumber());
+        values.put(COLUMN_NAME, ep.getName());
+        values.put(COLUMN_OVERVIEW, ep.getSummary());
+        values.put(COLUMN_WATCHED, ep.isWatched() ? 1 : 0);
+
+        SQLiteDatabase db = getWritableDatabase();
+        db.update(TABLE_EPISODE, values, COLUMN_ID + " = " + ep.getId(), null);
+        db.close();
     }
 
 }

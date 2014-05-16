@@ -16,11 +16,13 @@ import android.widget.TextView;
 
 import com.seriesmanager.app.Comm;
 import com.seriesmanager.app.R;
+import com.seriesmanager.app.database.DBHelper;
 import com.seriesmanager.app.entities.Episode;
 import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
 import com.seriesmanager.app.interfaces.OnShowInteractionListener;
 import com.seriesmanager.app.ui.fragments.EpisodeFragment;
 
+import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 
@@ -154,17 +156,17 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
                     img.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            if (Comm.actualShow.isFavorite()) {
-                                Comm.actualShow.setFavorite(false);
+                            Comm.actualShow.setFavorite(!Comm.actualShow.isFavorite());
+                            if (!Comm.actualShow.isFavorite()) {
                                 ((ImageView) view).setImageResource(android.R.drawable.btn_star_big_off);
                             } else {
-                                Comm.actualShow.setFavorite(true);
                                 ((ImageView) view).setImageResource(android.R.drawable.btn_star_big_on);
                             }
+                            new DBHelper(getActivity(), null).updateShow(Comm.actualShow);
                             ((OnShowInteractionListener) Comm.mainContext).onShowInteraction(Comm.actualShow);
                         }
                     });
-                } else {
+                } else { // TODO: remove this, replace by other idea
                     img.setImageResource(R.drawable.ic_plus);
                     img.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -188,7 +190,8 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
                 }
                 ((TextView) rootView.findViewById(R.id.text_name)).setText(Comm.actualShow.getName());
                 ((TextView) rootView.findViewById(R.id.text_summary)).setText(Comm.actualShow.getSummary());
-                ((TextView) rootView.findViewById(R.id.text_data)).setText(Comm.actualShow.getFirstAired().toString());
+                SimpleDateFormat ft = new SimpleDateFormat("dd/MM/yyyy");
+                ((TextView) rootView.findViewById(R.id.text_data)).setText(ft.format(Comm.actualShow.getFirstAired()));
                 ((TextView) rootView.findViewById(R.id.text_emissora)).setText(Comm.actualShow.getNetwork());
             } else if (getArguments().getInt(ARG_SECTION_NUMBER) == 2) {
                 rootView = inflater.inflate(R.layout.fragment_list_show_seasons, container, false);

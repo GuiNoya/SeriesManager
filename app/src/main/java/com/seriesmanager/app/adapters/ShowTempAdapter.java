@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.seriesmanager.app.Comm;
 import com.seriesmanager.app.R;
+import com.seriesmanager.app.database.DBHelper;
 import com.seriesmanager.app.entities.Episode;
 import com.seriesmanager.app.entities.Season;
 import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
@@ -119,6 +120,7 @@ public class ShowTempAdapter extends BaseExpandableListAdapter {
             @Override
             public void onClick(View view) {
                 ep.setWatched(cb.isChecked());
+                new DBHelper(Comm.mainContext, null).updateEpisode(ep);
                 ((OnEpisodeInteractionListener) Comm.mainContext).onEpisodeInteraction(ep);
             }
         });

@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.seriesmanager.app.R;
+import com.seriesmanager.app.database.DBHelper;
 import com.seriesmanager.app.entities.Show;
 
 import java.util.List;
@@ -55,6 +56,7 @@ public class ShowListAdapter extends ArrayAdapter<Show> {
                     sh.setFavorite(true);
                     ((ImageView) view).setImageResource(android.R.drawable.btn_star_big_on);
                 }
+                new DBHelper(getContext(), null).updateShow(sh);
             }
         });
 
