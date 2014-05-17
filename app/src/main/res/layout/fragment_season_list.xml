@@ -19,12 +19,16 @@
         android:text="tegefsd"
         android:textSize="20dp" />
 
-    <CheckBox
-        android:id="@+id/check_box_season"
+    <ProgressBar
+        android:id="@+id/progress_bar_season"
+        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
+        android:layout_alignEnd="@+id/text"
+        android:layout_alignLeft="@+id/text"
         android:layout_alignParentRight="true"
-        android:layout_alignTop="@+id/text" />
+        android:layout_below="@+id/text"
+        android:clickable="false"
+        android:paddingLeft="15dp" />
 
 </RelativeLayout>

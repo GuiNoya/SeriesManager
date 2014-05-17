@@ -15,6 +15,7 @@
         android:layout_marginLeft="10dp"
         android:layout_marginRight="35dp"
         android:layout_marginTop="5dp"
+        android:paddingTop="10dp"
         android:text="New Text"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -22,9 +23,10 @@
         android:id="@+id/check_box_watched"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/name"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true" />
+        android:layout_alignTop="@+id/name" />
 
     <RelativeLayout
         android:id="@+id/more_info"

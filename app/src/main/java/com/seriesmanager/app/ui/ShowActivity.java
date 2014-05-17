@@ -147,47 +147,24 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
             if (getArguments().getInt(ARG_SECTION_NUMBER) == 1) {
                 rootView = inflater.inflate(R.layout.fragment_show_info, container, false);
                 final ImageView img = (ImageView) rootView.findViewById(R.id.image_plus);
-                if (Comm.actualShow.isAdded()) {
-                    if (Comm.actualShow.isFavorite()) {
-                        img.setImageResource(android.R.drawable.btn_star_big_on);
-                    } else {
-                        img.setImageResource(android.R.drawable.btn_star_big_off);
-                    }
-                    img.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Comm.actualShow.setFavorite(!Comm.actualShow.isFavorite());
-                            if (!Comm.actualShow.isFavorite()) {
-                                ((ImageView) view).setImageResource(android.R.drawable.btn_star_big_off);
-                            } else {
-                                ((ImageView) view).setImageResource(android.R.drawable.btn_star_big_on);
-                            }
-                            new DBHelper(getActivity(), null).updateShow(Comm.actualShow);
-                            ((OnShowInteractionListener) Comm.mainContext).onShowInteraction(Comm.actualShow);
-                        }
-                    });
-                } else { // TODO: remove this, replace by other idea
-                    img.setImageResource(R.drawable.ic_plus);
-                    img.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Comm.actualShow.setAdded(true);
-                            img.setImageResource(android.R.drawable.btn_star_big_off);
-                            img.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    if (Comm.actualShow.isFavorite()) {
-                                        Comm.actualShow.setFavorite(false);
-                                        ((ImageView) view).setImageResource(android.R.drawable.btn_star_big_off);
-                                    } else {
-                                        Comm.actualShow.setFavorite(true);
-                                        ((ImageView) view).setImageResource(android.R.drawable.btn_star_big_on);
-                                    }
-                                }
-                            });
-                        }
-                    });
+                if (Comm.actualShow.isFavorite()) {
+                    img.setImageResource(android.R.drawable.btn_star_big_on);
+                } else {
+                    img.setImageResource(android.R.drawable.btn_star_big_off);
                 }
+                img.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Comm.actualShow.setFavorite(!Comm.actualShow.isFavorite());
+                        if (Comm.actualShow.isFavorite()) {
+                            ((ImageView) view).setImageResource(android.R.drawable.btn_star_big_on);
+                        } else {
+                            ((ImageView) view).setImageResource(android.R.drawable.btn_star_big_off);
+                        }
+                        new DBHelper(getActivity(), null).updateShow(Comm.actualShow);
+                        ((OnShowInteractionListener) Comm.mainContext).onShowInteraction(Comm.actualShow);
+                    }
+                });
                 ((TextView) rootView.findViewById(R.id.text_name)).setText(Comm.actualShow.getName());
                 ((TextView) rootView.findViewById(R.id.text_summary)).setText(Comm.actualShow.getSummary());
                 SimpleDateFormat ft = new SimpleDateFormat("dd/MM/yyyy");

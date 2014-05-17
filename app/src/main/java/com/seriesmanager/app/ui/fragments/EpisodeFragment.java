@@ -1,24 +1,29 @@
 package com.seriesmanager.app.ui.fragments;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
 
 import com.seriesmanager.app.Comm;
 import com.seriesmanager.app.R;
 import com.seriesmanager.app.adapters.ShowTempAdapter;
+import com.seriesmanager.app.database.DBHelper;
 import com.seriesmanager.app.entities.Episode;
 import com.seriesmanager.app.entities.Season;
 import com.seriesmanager.app.entities.Show;
 import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +58,7 @@ public class EpisodeFragment extends ListFragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-        ExpandableListView lv = (ExpandableListView) getActivity().findViewById(R.id.container_seasons).findViewById(android.R.id.list);
+        final ExpandableListView lv = (ExpandableListView) getActivity().findViewById(R.id.container_seasons).findViewById(android.R.id.list);
 
         List<ShowTempAdapter.ParentGroup> list = new ArrayList<ShowTempAdapter.ParentGroup>();
         Map<Integer, Season> seasons = Comm.actualShow.getSeasons();
@@ -67,6 +72,38 @@ public class EpisodeFragment extends ListFragment {
                 al.add(hm.get(j));
             }
         }
+
+        lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, final int pos, long id) {
+                if (ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_GROUP) {
+                    new AlertDialog.Builder(getActivity()).setTitle("Mark all watched")
+                            .setMessage("Are you sure do you want to mark all the episodes in the season watched?")
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    ShowTempAdapter adapter = ((ShowTempAdapter) lv.getExpandableListAdapter());
+                                    Iterator<Episode> it = adapter.getSeasonEpisodes(pos).iterator();
+                                    while (it.hasNext()) {
+                                        Episode ep = it.next();
+                                        if (!ep.isWatched()) {
+                                            ep.setWatched(true);
+                                            new DBHelper(getActivity(), null).updateEpisode(ep);
+                                        }
+                                        adapter.notifyDataSetChanged();
+                                    }
+                                }
+                            })
+                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                }
+                            }).show();
+                    return true;
+                }
+                return false;
+            }
+        });
 
         lv.setAdapter(new ShowTempAdapter(getActivity(), list));
         //setListAdapter(new ShowTempAdapter(getActivity(), list));

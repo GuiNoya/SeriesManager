@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckBox;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -62,6 +63,10 @@ public class ShowTempAdapter extends BaseExpandableListAdapter {
         return (i * 100) + i1;
     }
 
+    public List<Episode> getSeasonEpisodes(int i) {
+        return mParent.get(i).getArrayChildren();
+    }
+
     @Override
     public boolean hasStableIds() {
         return true;
@@ -74,30 +79,18 @@ public class ShowTempAdapter extends BaseExpandableListAdapter {
             view = inflater.inflate(R.layout.fragment_season_list, viewGroup, false);
         }
         ((TextView) view.findViewById(R.id.text)).setText(getGroup(i).toString());
-        final CheckBox cb = ((CheckBox) view.findViewById(R.id.check_box_season));
+        final ProgressBar pb = (ProgressBar) view.findViewById(R.id.progress_bar_season);
         final Season se = Comm.actualShow.getSeasons().get(i);
         if (se.getEpisodes().size() > 0) {
+            pb.setMax(se.getEpisodes().values().size());
+            int count = 0;
             Iterator<Episode> it = se.getEpisodes().values().iterator();
             while (it.hasNext()) {
-                if (!it.next().isWatched()) {
-                    break;
-                }
-                if (!it.hasNext()) {
-                    cb.setChecked(true);
-                }
+                if (it.next().isWatched())
+                    count++;
             }
+            pb.setProgress(count);
         }
-        cb.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (se.getEpisodes().size() > 0) {
-                    Iterator<Episode> it = se.getEpisodes().values().iterator();
-                    while (it.hasNext()) {
-                        it.next().setWatched(true);
-                    }
-                }
-            }
-        });
 
         return view;
     }
@@ -122,6 +115,7 @@ public class ShowTempAdapter extends BaseExpandableListAdapter {
                 ep.setWatched(cb.isChecked());
                 new DBHelper(context, null).updateEpisode(ep);
                 ((OnEpisodeInteractionListener) Comm.mainContext).onEpisodeInteraction(ep);
+                notifyDataSetChanged();
             }
         });
 
