@@ -35,6 +35,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String COLUMN_ID_FOREIGN = "fid";
 
     private static final String COLUMN_WATCHED = "watched";
+    private static final String COLUMN_RATING = "rating";
 
 
     public DBHelper(Context context, CursorFactory factory) {
@@ -54,7 +55,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         String createEpisodeTable = "CREATE TABLE " + TABLE_EPISODE + "(" + COLUMN_ID + " INTEGER PRIMARY KEY, "
                 + COLUMN_NAME + " TEXT NOT NULL, " + COLUMN_NUMBER + " INTEGER NOT NULL, " + COLUMN_OVERVIEW
-                + " TEXT, " + COLUMN_WATCHED + " INTEGER, " + COLUMN_ID_FOREIGN
+                + " TEXT, " + COLUMN_WATCHED + " INTEGER, " + COLUMN_RATING + " INTEGER, " + COLUMN_ID_FOREIGN
                 + " INTEGER NOT NULL,  FOREIGN KEY(" + COLUMN_ID_FOREIGN + ") REFERENCES " + TABLE_SEASON
                 + "(" + COLUMN_ID + "));";
 
@@ -117,6 +118,7 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COLUMN_NAME, ep.getName());
         values.put(COLUMN_OVERVIEW, ep.getSummary());
         values.put(COLUMN_WATCHED, ep.isWatched() ? 1 : 0);
+        values.put(COLUMN_RATING, (int) ep.getRating());
 
         SQLiteDatabase db = getWritableDatabase();
         db.insert(TABLE_EPISODE, null, values);
@@ -193,6 +195,7 @@ public class DBHelper extends SQLiteOpenHelper {
                         episode.setEpisodeNumber(cursor2.getInt(2));
                         episode.setSummary(cursor2.getString(3));
                         episode.setWatched(cursor2.getInt(4) == 1);
+                        episode.setRating((short) cursor2.getInt(5));
                         episode.setSeason(season);
                         episode.setShow(show);
                         season.getEpisodes().put(episode.getEpisodeNumber(), episode);
@@ -249,6 +252,7 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COLUMN_NAME, ep.getName());
         values.put(COLUMN_OVERVIEW, ep.getSummary());
         values.put(COLUMN_WATCHED, ep.isWatched() ? 1 : 0);
+        values.put(COLUMN_RATING, (int) ep.getRating());
 
         SQLiteDatabase db = getWritableDatabase();
         db.update(TABLE_EPISODE, values, COLUMN_ID + " = " + ep.getId(), null);

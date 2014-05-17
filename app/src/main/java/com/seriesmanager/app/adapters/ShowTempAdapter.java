@@ -120,7 +120,7 @@ public class ShowTempAdapter extends BaseExpandableListAdapter {
             @Override
             public void onClick(View view) {
                 ep.setWatched(cb.isChecked());
-                new DBHelper(Comm.mainContext, null).updateEpisode(ep);
+                new DBHelper(context, null).updateEpisode(ep);
                 ((OnEpisodeInteractionListener) Comm.mainContext).onEpisodeInteraction(ep);
             }
         });
@@ -165,6 +165,11 @@ public class ShowTempAdapter extends BaseExpandableListAdapter {
     @Override
     public void registerDataSetObserver(DataSetObserver observer) {
         super.registerDataSetObserver(observer);
+    }
+
+    @Override
+    public void onGroupExpanded(int groupPosition) {
+        super.onGroupExpanded(groupPosition);
     }
 
     public static class ParentGroup {

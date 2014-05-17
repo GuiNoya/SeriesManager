@@ -11,6 +11,7 @@ public class Episode {
     private String summary;
     private Date airDate;
     private boolean watched = false;
+    private short rating;
 
     public Episode() {
     }
@@ -126,5 +127,13 @@ public class Episode {
 
     public void setWatched(boolean watched) {
         this.watched = watched;
+    }
+
+    public short getRating() {
+        return rating;
+    }
+
+    public void setRating(short rating) {
+        this.rating = rating;
     }
 }
