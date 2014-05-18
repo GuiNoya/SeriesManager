@@ -15,7 +15,6 @@ import com.seriesmanager.app.adapters.OverdueAdapter;
 import com.seriesmanager.app.database.DBHelper;
 import com.seriesmanager.app.entities.Season;
 import com.seriesmanager.app.entities.Show;
-import com.seriesmanager.app.fillers.TestContent;
 import com.seriesmanager.app.ui.ShowActivity;
 
 import java.util.Map;
@@ -53,7 +52,8 @@ public class ShowOverdueFragment extends ListFragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-        mAdapter = new OverdueAdapter(getActivity(), TestContent.OVERDUE_LIST);
+        //mAdapter = new OverdueAdapter(getActivity(), TestContent.OVERDUE_LIST);
+        mAdapter = new OverdueAdapter(getActivity(), new DBHelper(getActivity(), null).loadOverdueShows());
         setListAdapter(mAdapter);
     }
 

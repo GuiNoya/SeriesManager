@@ -259,4 +259,48 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public List<Show> loadOverdueShows() {
+        List<Show> lista = new ArrayList<Show>();
+        String query = "SELECT s." + COLUMN_ID_FOREIGN + ", COUNT(" + "s."
+                + COLUMN_ID_FOREIGN + ") FROM " + TABLE_EPISODE + " e, " + TABLE_SEASON + " s "
+                + "WHERE e." + COLUMN_WATCHED + "=0 and e." + COLUMN_ID_FOREIGN + "=s." + COLUMN_ID;
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                Show show = loadShow(cursor.getInt(0));
+                show.setNumberOverdue(cursor.getInt(1));
+                lista.add(show);
+                cursor.moveToNext();
+            }
+        }
+
+        db.close();
+        return lista;
+    }
+
+    /*public List<Show> loadCalendarShows(){
+        List<Show> lista = new ArrayList<Show>();
+        String query = "SELECT s." + COLUMN_ID_FOREIGN + ", COUNT(" + "s."
+                + COLUMN_ID_FOREIGN + ") FROM " + TABLE_EPISODE + " e, " + TABLE_SEASON + " s "
+                + "WHERE e." + COLUMN_WATCHED + "=0 and e." + COLUMN_ID_FOREIGN + "=s." + COLUMN_ID;
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                Show show = loadShow(cursor.getInt(0));
+                show.setNumberOverdue(cursor.getInt(1));
+                lista.add(show);
+                cursor.moveToNext();
+            }
+        }
+
+        db.close();
+        return lista;
+    }*/
+
 }
