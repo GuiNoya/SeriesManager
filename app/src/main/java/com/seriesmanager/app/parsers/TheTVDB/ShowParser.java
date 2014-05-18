@@ -17,6 +17,7 @@ import com.seriesmanager.app.network.NetworkGet;
 
 import org.xml.sax.ContentHandler;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -169,7 +170,12 @@ public class ShowParser extends AsyncTask<String, Integer, Show> {
                 ep.setEpisodeNumber(values.getAsInteger("episode"));
                 ep.setName(values.getAsString("name"));
                 ep.setSummary(values.getAsString("summary"));
-                //ep.setAirDate(new Date(values.getAsString("date")));
+                try {
+                    ep.setAirDate(new SimpleDateFormat("yyyy-mm-dd").parse(values.getAsString("date")));
+                } catch (Exception e) {
+                    ep.setAirDate(null);
+                    e.printStackTrace();
+                }
                 ep.setAirDate(new Date());
                 int seasonNumber = values.getAsInteger("season");
                 if (!seasons.containsKey(seasonNumber)) {

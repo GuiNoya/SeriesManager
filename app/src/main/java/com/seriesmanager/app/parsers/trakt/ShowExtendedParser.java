@@ -51,7 +51,7 @@ public class ShowExtendedParser extends AsyncTask<String, Integer, Show> {
             show.setId(jsonObj.getInt("tvdb_id"));
             show.setName(jsonObj.getString("title"));
             show.setSummary(jsonObj.getString("overview"));
-            show.setFirstAired(new Date(jsonObj.getLong("first_aired")));
+            show.setFirstAired(new Date(jsonObj.getLong("first_aired") * 1000));
             show.setNetwork(jsonObj.getString("network"));
             List<String> genres = new ArrayList<String>();
             JSONArray jsonArr = jsonObj.getJSONArray("genres");
@@ -65,7 +65,6 @@ public class ShowExtendedParser extends AsyncTask<String, Integer, Show> {
                 Season season = new Season();
                 JSONObject jsonSeason = jsonArr.getJSONObject(i);
                 season.setSeasonNumber(jsonSeason.getInt("season"));
-                //season.setId(jsonSeason.getInt(""));
                 seasons.put(season.getSeasonNumber(), season);
                 season.setShow(show);
                 Map<Integer, Episode> episodes = new HashMap<Integer, Episode>();
@@ -80,7 +79,12 @@ public class ShowExtendedParser extends AsyncTask<String, Integer, Show> {
                     ep.setEpisodeNumber(jsonEp.getInt("number"));
                     ep.setName(jsonEp.getString("title"));
                     ep.setSummary(jsonEp.getString("overview"));
-                    ep.setAirDate(new Date(jsonEp.getLong("first_aired")));
+                    try {
+                        ep.setAirDate(new Date(jsonEp.getLong("first_aired") * 1000));
+                    } catch (Exception e) {
+                        ep.setAirDate(null);
+                        e.printStackTrace();
+                    }
                     episodes.put(ep.getEpisodeNumber(), ep);
                 }
             }

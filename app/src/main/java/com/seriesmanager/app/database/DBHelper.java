@@ -12,8 +12,8 @@ import com.seriesmanager.app.entities.Episode;
 import com.seriesmanager.app.entities.Season;
 import com.seriesmanager.app.entities.Show;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class DBHelper extends SQLiteOpenHelper {
@@ -30,6 +30,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String COLUMN_OVERVIEW = "overview";
     private static final String COLUMN_NETWORK = "network";
     private static final String COLUMN_FAVORITE = "favorite";
+    private static final String COLUMN_DATE = "date";
 
     private static final String COLUMN_NUMBER = "number";
     private static final String COLUMN_ID_FOREIGN = "fid";
@@ -46,7 +47,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         String createShowTable = "CREATE TABLE " + TABLE_SHOW + "(" + COLUMN_ID + " INTEGER PRIMARY KEY, "
                 + COLUMN_NAME + " TEXT NOT NULL, " + COLUMN_OVERVIEW + " TEXT, " + COLUMN_NETWORK + " TEXT, "
-                + COLUMN_FAVORITE + " INTEGER" + ");";
+                + COLUMN_FAVORITE + " INTEGER, " + COLUMN_DATE + " TEXT" + ");";
 
         String createSeasonTable = "CREATE TABLE " + TABLE_SEASON + "(" + COLUMN_ID
                 + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_NUMBER + " INTEGER NOT NULL, "
@@ -55,9 +56,9 @@ public class DBHelper extends SQLiteOpenHelper {
 
         String createEpisodeTable = "CREATE TABLE " + TABLE_EPISODE + "(" + COLUMN_ID + " INTEGER PRIMARY KEY, "
                 + COLUMN_NAME + " TEXT NOT NULL, " + COLUMN_NUMBER + " INTEGER NOT NULL, " + COLUMN_OVERVIEW
-                + " TEXT, " + COLUMN_WATCHED + " INTEGER, " + COLUMN_RATING + " INTEGER, " + COLUMN_ID_FOREIGN
-                + " INTEGER NOT NULL,  FOREIGN KEY(" + COLUMN_ID_FOREIGN + ") REFERENCES " + TABLE_SEASON
-                + "(" + COLUMN_ID + "));";
+                + " TEXT, " + COLUMN_WATCHED + " INTEGER, " + COLUMN_RATING + " INTEGER, " + COLUMN_DATE
+                + " TEXT, " + COLUMN_ID_FOREIGN + " INTEGER NOT NULL,  FOREIGN KEY(" + COLUMN_ID_FOREIGN
+                + ") REFERENCES " + TABLE_SEASON + "(" + COLUMN_ID + "));";
 
         sqLiteDatabase.execSQL(createShowTable);
         sqLiteDatabase.execSQL(createSeasonTable);
@@ -83,6 +84,7 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COLUMN_OVERVIEW, show.getSummary());
         values.put(COLUMN_NETWORK, show.getNetwork());
         values.put(COLUMN_FAVORITE, show.isFavorite() ? 1 : 0);
+        values.put(COLUMN_DATE, new SimpleDateFormat("yyyy/MM/dd").format(show.getFirstAired()));
 
         SQLiteDatabase db = getWritableDatabase();
         db.insert(TABLE_SHOW, null, values);
@@ -119,6 +121,7 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COLUMN_OVERVIEW, ep.getSummary());
         values.put(COLUMN_WATCHED, ep.isWatched() ? 1 : 0);
         values.put(COLUMN_RATING, (int) ep.getRating());
+        values.put(COLUMN_DATE, new SimpleDateFormat("yyyy/MM/dd").format(ep.getAirDate()));
 
         SQLiteDatabase db = getWritableDatabase();
         db.insert(TABLE_EPISODE, null, values);
@@ -135,7 +138,7 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public Show loadShowComplete(int tvdbId) {
+    public Show loadCompleteShow(int tvdbId) {
 
         Show show = loadShow(tvdbId);
         loadShowExtraInfo(show);
@@ -157,7 +160,11 @@ public class DBHelper extends SQLiteOpenHelper {
             show.setSummary(cursor.getString(2));
             show.setNetwork(cursor.getString(3));
             show.setFavorite(cursor.getInt(4) == 1);
-            show.setFirstAired(new Date());
+            try {
+                show.setFirstAired(new SimpleDateFormat("yyyy/MM/dd").parse(cursor.getString(5)));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         db.close();
@@ -196,6 +203,11 @@ public class DBHelper extends SQLiteOpenHelper {
                         episode.setSummary(cursor2.getString(3));
                         episode.setWatched(cursor2.getInt(4) == 1);
                         episode.setRating((short) cursor2.getInt(5));
+                        try {
+                            episode.setAirDate(new SimpleDateFormat("yyyy/MM/dd").parse(cursor2.getString(6)));
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         episode.setSeason(season);
                         episode.setShow(show);
                         season.getEpisodes().put(episode.getEpisodeNumber(), episode);
@@ -261,14 +273,19 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public List<Show> loadOverdueShows() {
         List<Show> lista = new ArrayList<Show>();
-        String query = "SELECT s." + COLUMN_ID_FOREIGN + ", COUNT(" + "s."
+        String query = "SELECT s." + COLUMN_ID_FOREIGN + ", COUNT(s."
                 + COLUMN_ID_FOREIGN + ") FROM " + TABLE_EPISODE + " e, " + TABLE_SEASON + " s "
-                + "WHERE e." + COLUMN_WATCHED + "=0 and e." + COLUMN_ID_FOREIGN + "=s." + COLUMN_ID;
+                + "WHERE e." + COLUMN_WATCHED + "=0 and e." + COLUMN_ID_FOREIGN + "=s." + COLUMN_ID
+                + " GROUP BY s." + COLUMN_ID_FOREIGN;
 
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
 
         if (cursor.moveToFirst()) {
+            if (cursor.isLast()) {
+                if (cursor.getInt(0) == 0 && cursor.getInt(1) == 0)
+                    cursor.moveToNext();
+            }
             while (!cursor.isAfterLast()) {
                 Show show = loadShow(cursor.getInt(0));
                 show.setNumberOverdue(cursor.getInt(1));

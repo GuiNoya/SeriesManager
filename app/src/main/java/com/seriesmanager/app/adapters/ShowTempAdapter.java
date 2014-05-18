@@ -18,7 +18,9 @@ import com.seriesmanager.app.entities.Episode;
 import com.seriesmanager.app.entities.Season;
 import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
 import com.seriesmanager.app.ui.anim.ExpandAnimation;
+import com.seriesmanager.app.ui.dialogs.EpisodeRatingDialog;
 
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
 
@@ -80,7 +82,7 @@ public class ShowTempAdapter extends BaseExpandableListAdapter {
         }
         ((TextView) view.findViewById(R.id.text)).setText(getGroup(i).toString());
         final ProgressBar pb = (ProgressBar) view.findViewById(R.id.progress_bar_season);
-        final Season se = Comm.actualShow.getSeasons().get(i);
+        final Season se = Comm.actualShow.getSeasons().get(mParent.get(i).getSeasonNumber());
         if (se.getEpisodes().size() > 0) {
             pb.setMax(se.getEpisodes().values().size());
             int count = 0;
@@ -105,7 +107,12 @@ public class ShowTempAdapter extends BaseExpandableListAdapter {
         final CheckBox cb = ((CheckBox) view.findViewById(R.id.check_box_watched));
 
         ((TextView) view.findViewById(R.id.name)).setText(ep.getName());
-        ((TextView) view.findViewById(R.id.text_date)).setText("" + ep.getAirDate());
+        TextView tvName = ((TextView) view.findViewById(R.id.text_date));
+        try {
+            tvName.setText(new SimpleDateFormat("dd/MM/yyyy").format(ep.getAirDate()));
+        } catch (Exception e) {
+            tvName.setText("Date unknown");
+        }
         ((TextView) view.findViewById(R.id.text_summary)).setText(ep.getSummary());
         cb.setChecked(ep.isWatched());
 
@@ -114,6 +121,8 @@ public class ShowTempAdapter extends BaseExpandableListAdapter {
             public void onClick(View view) {
                 ep.setWatched(cb.isChecked());
                 new DBHelper(context, null).updateEpisode(ep);
+                if (ep.isWatched())
+                    new EpisodeRatingDialog(context, ep).show();
                 ((OnEpisodeInteractionListener) Comm.mainContext).onEpisodeInteraction(ep);
                 notifyDataSetChanged();
             }
@@ -169,6 +178,7 @@ public class ShowTempAdapter extends BaseExpandableListAdapter {
     public static class ParentGroup {
         private String mTitle;
         private List<Episode> mArrayChildren;
+        private int SeasonNumber;
 
         public ParentGroup() {
         }
@@ -196,6 +206,14 @@ public class ShowTempAdapter extends BaseExpandableListAdapter {
 
         public void setArrayChildren(List<Episode> mArrayChildren) {
             this.mArrayChildren = mArrayChildren;
+        }
+
+        public int getSeasonNumber() {
+            return SeasonNumber;
+        }
+
+        public void setSeasonNumber(int SeasonNumber) {
+            this.SeasonNumber = SeasonNumber;
         }
     }
 }

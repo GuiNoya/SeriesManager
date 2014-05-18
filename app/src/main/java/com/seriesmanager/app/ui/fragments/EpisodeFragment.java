@@ -64,6 +64,7 @@ public class EpisodeFragment extends ListFragment {
         Map<Integer, Season> seasons = Comm.actualShow.getSeasons();
         for (int i : seasons.keySet()) {
             ShowTempAdapter.ParentGroup pai = new ShowTempAdapter.ParentGroup("Season " + i);
+            pai.setSeasonNumber(i);
             list.add(pai);
             Map<Integer, Episode> hm = seasons.get(i).getEpisodes();
             List<Episode> al = new ArrayList<Episode>();
