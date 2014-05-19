@@ -23,11 +23,12 @@
             android:parentActivityName="com.seriesmanager.app.ui.MainActivity"
             android:screenOrientation="portrait"></activity>
         <activity
-            android:name="com.seriesmanager.app.StartActivity"
+            android:name=".ui.StartActivity"
             android:label="@string/title_activity_start"></activity>
         <activity
             android:name="com.seriesmanager.app.ui.AddShowActivity"
-            android:label="@string/title_activity_add_show"></activity>
+            android:label="@string/title_activity_add_show"
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name="com.seriesmanager.app.ui.SearchActivity"
             android:label="@string/title_activity_search"></activity>

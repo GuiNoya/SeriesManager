@@ -2,14 +2,18 @@ package com.seriesmanager.app.ui.fragments;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,23 +23,22 @@ import com.seriesmanager.app.database.DBHelper;
 import com.seriesmanager.app.entities.Show;
 import com.seriesmanager.app.entities.ShowSummary;
 import com.seriesmanager.app.interfaces.OnShowListInteractionListener;
+import com.seriesmanager.app.loaders.TrendingsLoader;
 import com.seriesmanager.app.parsers.trakt.ShowExtendedParser;
-import com.seriesmanager.app.parsers.trakt.TrendingShowsParser;
 import com.seriesmanager.app.ui.dialogs.ShowSummaryDialog;
-import com.seriesmanager.app.ui.dialogs.WarningDialog;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AddShowTrendingsFragment extends ListFragment {
+public class AddShowTrendingsFragment extends ListFragment implements LoaderManager.LoaderCallbacks<List<ShowSummary>> {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
+    private final int LOADER_ID = 1;
     private String mParam1;
     private String mParam2;
-
     private ListView list;
-
+    private ProgressBar progressBar;
+    private TextView empty;
     private OnShowListInteractionListener mListener;
 
     public AddShowTrendingsFragment() {
@@ -81,7 +84,6 @@ public class AddShowTrendingsFragment extends ListFragment {
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         ShowSummary sh = (ShowSummary) l.getAdapter().getItem(position);
-        //Intent intent = new Intent(null, null, getActivity(), ShowActivity.class);
         new ShowSummaryDialog(sh).show(getActivity().getSupportFragmentManager(), "");
     }
 
@@ -91,33 +93,46 @@ public class AddShowTrendingsFragment extends ListFragment {
         //View view =  inflater.inflate(R.layout.fragment_add_show_trendings, container, false);
 
         list = (ListView) getActivity().findViewById(android.R.id.list);
-        List<ShowSummary> shows = null;
-        try {
-            shows = new TrendingShowsParser().get();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        WarningDialog wd = new WarningDialog("Please Wait", "Getting data");
-        wd.show(getActivity().getSupportFragmentManager(), "");
-        try {
-            list.setAdapter(new SemiShowAdapter(getActivity(), shows));
-            wd.dismiss();
-        } catch (Exception e) {
-            shows = new ArrayList<ShowSummary>();
-            list.setAdapter(new SemiShowAdapter(getActivity(), shows));
-            wd.dismiss();
-            new ShowSummaryDialog(new ShowSummary(0, "Network Problem", "Please enable the network."))
-                    .show(getActivity().getSupportFragmentManager(), "");
-        }
-        setListAdapter(new SemiShowAdapter(getActivity(), shows));
+        progressBar = (ProgressBar) getActivity().findViewById(R.id.progress_bar_add_trending);
+        progressBar.setVisibility(View.VISIBLE);
+        empty = (TextView) getActivity().findViewById(android.R.id.empty);
+        ;
+
+        setListAdapter(new SemiShowAdapter(getActivity(), new ArrayList<ShowSummary>()));
+        getLoaderManager().initLoader(LOADER_ID, null, this);
 
         //return view;
         return null;
     }
 
-    /*public interface OnFragmentInteractionListener {
-        public void onFragmentInteraction(int id, String nama);
-    }*/
+    @Override
+    public Loader<List<ShowSummary>> onCreateLoader(int id, Bundle args) {
+        return new TrendingsLoader(getActivity());
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<ShowSummary>> loader, List<ShowSummary> data) {
+        if (data != null) {
+            list.setAdapter(new SemiShowAdapter(getActivity(), data));
+            ((SemiShowAdapter) getListAdapter()).addAll(data);
+            progressBar.setVisibility(View.GONE);
+            empty.setVisibility(View.GONE);
+            ((SemiShowAdapter) getListAdapter()).notifyDataSetChanged();
+            if (data.size() == 0) {
+                empty.setText("No trending shows\nThat's really weird.");
+                empty.setVisibility(View.VISIBLE);
+            }
+        } else {
+            empty.setText("Problem loading data!\nVerify your network.");
+            empty.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+        list.setAdapter(null);
+    }
 
     public class SemiShowAdapter extends ArrayAdapter<ShowSummary> {
         private final Context context;
@@ -155,9 +170,7 @@ public class AddShowTrendingsFragment extends ListFragment {
                     img.setImageResource(R.drawable.ic_correct);
                     Toast.makeText(context, sh.getName() + " adicionada", Toast.LENGTH_SHORT).show();
                     try {
-                        Show show = new ShowExtendedParser(sh.getId()).get();
-                        Comm.showsList.add(show);
-                        new DBHelper(getContext(), null).persistCompleteShow(show);
+                        new ShowAdder().execute(sh.getId());
                         mListener.onShowListInteraction();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -172,6 +185,34 @@ public class AddShowTrendingsFragment extends ListFragment {
             });
 
             return rowView;
+        }
+
+        private class ShowAdder extends AsyncTask<Integer, Void, Void> {
+
+            @Override
+            protected Void doInBackground(Integer... integers) {
+                final Show show;
+                try {
+                    show = new ShowExtendedParser(integers[0]).get();
+                    new DBHelper(context, null).persistCompleteShow(show);
+                    Comm.showsList.add(show);
+                    ((OnShowListInteractionListener) Comm.mainContext).onShowListInteraction();
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), show.getName() + " adicionada", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } catch (Exception e) {
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(context, "Couldn't add the show", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+                return null;
+            }
         }
     }
 }

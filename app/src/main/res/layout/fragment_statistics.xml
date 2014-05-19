@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/relativeLayout0"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -30,26 +31,17 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
+                android:layout_marginBottom="5dp"
                 android:layout_marginLeft="20dp"
                 android:clickable="false"
                 android:text="My Shows"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <TextView
-                android:id="@+id/number_listed_shows"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginRight="20dp"
-                android:clickable="false"
-                android:paddingEnd="10dp"
-                android:paddingTop="10dp"
-                android:text="7"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="@android:color/holo_blue_dark" />
         </RelativeLayout>
+
+        <TextView
+            style="?android:attr/listSeparatorTextViewStyle"
+            android:layout_margin="16dp" />
 
         <RelativeLayout
             android:layout_width="fill_parent"
@@ -57,10 +49,10 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_below="@+id/relativeLayout3"
-            android:layout_marginTop="-2dp">
+            android:layout_marginTop="7dp">
 
             <TextView
-                android:id="@+id/text_on_airshows"
+                android:id="@+id/text_overdue_shows"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
@@ -72,7 +64,7 @@
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <TextView
-                android:id="@+id/number_on_air_shows"
+                android:id="@+id/number_overdue_shows"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
@@ -85,6 +77,41 @@
                 android:paddingTop="10dp"
                 android:text="3"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="false"
+            android:layout_marginTop="90dp">
+
+            <TextView
+                android:id="@+id/text_onair_shows"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="40dp"
+                android:clickable="false"
+                android:text="On air now"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+            <TextView
+                android:id="@+id/number_onair_shows"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="-7dp"
+                android:clickable="false"
+                android:paddingEnd="10dp"
+                android:paddingTop="10dp"
+                android:text="6"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
         </RelativeLayout>
 
@@ -94,33 +121,75 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="false"
-            android:layout_marginTop="75dp">
+            android:layout_marginTop="120dp">
 
             <TextView
-                android:id="@+id/text_overdue_shows"
+                android:id="@+id/text_ended_shows"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_marginLeft="40dp"
                 android:clickable="false"
-                android:text="On air"
+                android:text="Ended"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <TextView
-                android:id="@+id/number_overdue_shows"
+                android:id="@+id/number_ended_shows"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginRight="20dp"
-                android:layout_marginTop="-5dp"
+                android:layout_marginTop="-7dp"
                 android:clickable="false"
                 android:paddingEnd="10dp"
                 android:paddingTop="10dp"
-                android:text="6"
+                android:text="4"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="150dp">
+
+            <TextView
+                android:id="@+id/text_total_shows"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginLeft="40dp"
+                android:clickable="false"
+                android:text="Total"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="#a4520f" />
+
+            <TextView
+                android:id="@+id/number_total_shows"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="-7dp"
+                android:clickable="false"
+                android:paddingEnd="10dp"
+                android:paddingTop="10dp"
+                android:text="10"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
+                style="?android:attr/listSeparatorTextViewStyle"
+                android:layout_margin="10dp" />
 
         </RelativeLayout>
 
@@ -133,7 +202,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/relativeLayout"
-        android:layout_marginTop="30dp">
+        android:layout_marginTop="57dp">
 
         <RelativeLayout
             android:layout_width="fill_parent"
@@ -146,7 +215,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:layout_marginLeft="45dp"
+                android:layout_marginLeft="40dp"
                 android:clickable="false"
                 android:text="Watched Episodes"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -159,7 +228,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginRight="20dp"
-                android:layout_marginTop="-5dp"
+                android:layout_marginTop="-7dp"
                 android:clickable="false"
                 android:paddingEnd="10dp"
                 android:paddingTop="10dp"
@@ -180,7 +249,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:layout_marginLeft="20dp"
+                android:layout_marginLeft="40dp"
                 android:clickable="false"
                 android:text="Unwatched Episodes"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -193,7 +262,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginRight="20dp"
-                android:layout_marginTop="-5dp"
+                android:layout_marginTop="-7dp"
                 android:clickable="false"
                 android:paddingEnd="10dp"
                 android:paddingTop="10dp"
@@ -217,10 +286,11 @@
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
-                android:layout_marginLeft="180dp"
+                android:layout_marginLeft="40dp"
                 android:clickable="false"
                 android:text="Total"
-                android:textAppearance="?android:attr/textAppearanceLarge" />
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="#a4520f" />
 
             <TextView
                 android:id="@+id/number_total_episodes"
@@ -230,14 +300,46 @@
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginRight="20dp"
-                android:layout_marginTop="-5dp"
+                android:layout_marginTop="-7dp"
                 android:clickable="false"
                 android:paddingEnd="10dp"
                 android:paddingTop="10dp"
                 android:text="110"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
+            <TextView
+                style="?android:attr/listSeparatorTextViewStyle"
+                android:layout_margin="10dp" />
         </RelativeLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout4"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/relativeLayout">
+
+        <TextView
+            android:id="@+id/text_listed_episodes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:clickable="false"
+            android:text="My Episodes"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@android:color/holo_blue_dark" />
+
+        <TextView
+            style="?android:attr/listSeparatorTextViewStyle"
+            android:layout_margin="16dp" />
 
     </RelativeLayout>
 

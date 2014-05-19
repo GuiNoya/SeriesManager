@@ -13,23 +13,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ListView;
 
 import com.seriesmanager.app.R;
-import com.seriesmanager.app.entities.ShowSummary;
 import com.seriesmanager.app.interfaces.OnShowListInteractionListener;
-import com.seriesmanager.app.parsers.trakt.ShowSearchParser;
-import com.seriesmanager.app.ui.dialogs.ShowSummaryDialog;
-import com.seriesmanager.app.ui.dialogs.WarningDialog;
 import com.seriesmanager.app.ui.fragments.AddShowSearchFragment;
 import com.seriesmanager.app.ui.fragments.AddShowTrendingsFragment;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
-
-//import com.seriesmanager.app.parsers.TheTVDB.ShowSearchParser;
 
 public class AddShowActivity extends ActionBarActivity implements ActionBar.TabListener, OnShowListInteractionListener {
 
@@ -105,33 +95,16 @@ public class AddShowActivity extends ActionBarActivity implements ActionBar.TabL
     }
 
     public void onButtonSearchClick(View vi) {
-        List<ShowSummary> shows = null;
-        View pai = (View) vi.getParent();
-        EditText editText = (EditText) pai.findViewById(R.id.edit_text_add_search_show);
-        if (editText.getText().toString() == null) {
+        AddShowSearchFragment frg = (AddShowSearchFragment) getSupportFragmentManager().findFragmentByTag("search");
+
+        String str = frg.getQuery();
+        if (frg.getQuery().equals("")) {
             return;
         }
-        try {
-            shows = new ShowSearchParser(editText.getText().toString()).get();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        WarningDialog wd = new WarningDialog("Please Wait", "Getting data");
-        wd.show(getSupportFragmentManager(), "");
-        try {
-            ListView list = (ListView) pai.findViewById(android.R.id.list);
-            AddShowSearchFragment.SemiShowAdapter adapter = new AddShowSearchFragment.SemiShowAdapter(this, shows);
-            list.setAdapter(adapter);
-            wd.dismiss();
-        } catch (Exception e) {
-            shows = new ArrayList<ShowSummary>();
-            ListView list = (ListView) pai.findViewById(android.R.id.list);
-            AddShowSearchFragment.SemiShowAdapter adapter = new AddShowSearchFragment.SemiShowAdapter(this, shows);
-            list.setAdapter(adapter);
-            wd.dismiss();
-            new ShowSummaryDialog(new ShowSummary(0, "Network Problem", "Please enable the network."))
-                    .show(getSupportFragmentManager(), "");
-        }
+        Bundle b = new Bundle();
+        b.putString("text", str);
+        getSupportLoaderManager().restartLoader(2, b, frg);
+        //getSupportLoaderManager().initLoader(2, b,  frg);
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
@@ -193,7 +166,7 @@ public class AddShowActivity extends ActionBarActivity implements ActionBar.TabL
                 getSupportFragmentManager().beginTransaction().replace(R.id.container_add_trendings, AddShowTrendingsFragment.newInstance("", "")).commit();
             } else if (getArguments().getInt(ARG_SECTION_NUMBER) == 2) {
                 rootView = inflater.inflate(R.layout.fragment_add_show_search, container, false);
-                getSupportFragmentManager().beginTransaction().add(R.id.container_add_search, AddShowSearchFragment.newInstance("", "")).commit();
+                getSupportFragmentManager().beginTransaction().add(R.id.container_add_search, AddShowSearchFragment.newInstance("", ""), "search").commit();
             }
             return rootView;
         }

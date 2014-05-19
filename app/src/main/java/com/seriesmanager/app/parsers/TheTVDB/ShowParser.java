@@ -2,6 +2,7 @@ package com.seriesmanager.app.parsers.TheTVDB;
 
 import android.content.ContentValues;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.sax.Element;
 import android.sax.EndElementListener;
 import android.sax.EndTextElementListener;
@@ -32,12 +33,18 @@ public class ShowParser extends AsyncTask<String, Integer, Show> {
 
     public ShowParser(String entry) {
         this.entry = entry;
-        this.execute();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+            this.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        else
+            this.execute();
     }
 
     public ShowParser(int entry) {
         this.entry = Integer.toString(entry);
-        this.execute();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+            this.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        else
+            this.execute();
     }
 
     @Override

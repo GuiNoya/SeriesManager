@@ -18,7 +18,6 @@ import android.view.ViewGroup;
 
 import com.seriesmanager.app.Comm;
 import com.seriesmanager.app.R;
-import com.seriesmanager.app.StartActivity;
 import com.seriesmanager.app.database.DBHelper;
 import com.seriesmanager.app.entities.Episode;
 import com.seriesmanager.app.entities.Season;
@@ -46,8 +45,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         Comm.mainContext = MainActivity.this;
 
-        //Comm.showsList = new ArrayList<Show>();
-        //Comm.showsList.addAll(TestContent.SHOWS);
         Comm.showsList = new DBHelper(this, null).loadShowsAll();
 
         if (Comm.showsList.size() == 0) {

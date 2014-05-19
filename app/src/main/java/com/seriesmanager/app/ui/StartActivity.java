@@ -1,7 +1,10 @@
-package com.seriesmanager.app;
+package com.seriesmanager.app.ui;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -11,53 +14,75 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.seriesmanager.app.Comm;
+import com.seriesmanager.app.R;
 import com.seriesmanager.app.database.DBHelper;
 import com.seriesmanager.app.entities.Show;
 import com.seriesmanager.app.entities.ShowSummary;
 import com.seriesmanager.app.interfaces.OnShowListInteractionListener;
+import com.seriesmanager.app.loaders.TrendingsLoader;
 import com.seriesmanager.app.parsers.trakt.ShowExtendedParser;
-import com.seriesmanager.app.parsers.trakt.TrendingShowsParser;
 import com.seriesmanager.app.ui.dialogs.ShowSummaryDialog;
-import com.seriesmanager.app.ui.dialogs.WarningDialog;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class StartActivity extends ActionBarActivity {
+public class StartActivity extends ActionBarActivity implements LoaderManager.LoaderCallbacks<List<ShowSummary>> {
+
+    private final int LOADER_ID = 0;
 
     private ListView list;
-    private List<ShowSummary> listToAdd = new ArrayList<ShowSummary>();
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
         list = (ListView) findViewById(R.id.list_start);
-        List<ShowSummary> shows = null;
-        try {
-            shows = new TrendingShowsParser().get();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        WarningDialog wd = new WarningDialog("Please Wait", "Getting data");
-        wd.show(getSupportFragmentManager(), "");
-        try {
-            list.setAdapter(new StartAdapter(this, shows));
-            wd.dismiss();
-        } catch (Exception e) {
-            shows = new ArrayList<ShowSummary>();
-            list.setAdapter(new StartAdapter(this, shows));
-            wd.dismiss();
-            new ShowSummaryDialog(new ShowSummary(0, "Network Problem", "Please enable the network."))
-                    .show(getSupportFragmentManager(), "");
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar_start);
+        progressBar.setVisibility(View.VISIBLE);
+
+        list.setAdapter(new StartAdapter(this, new ArrayList<ShowSummary>()));
+        getSupportLoaderManager().initLoader(LOADER_ID, null, this);
+
+    }
+
+    @Override
+    public Loader<List<ShowSummary>> onCreateLoader(int id, Bundle args) {
+        return new TrendingsLoader(this);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<ShowSummary>> loader, List<ShowSummary> data) {
+        if (data != null) {
+            list.setAdapter(new StartAdapter(this, data));
+            ((StartAdapter) list.getAdapter()).addAll(data);
+            progressBar.setVisibility(View.GONE);
+            ((StartAdapter) list.getAdapter()).notifyDataSetChanged();
+            if (data.size() == 0) {
+                TextView t = (TextView) findViewById(android.R.id.empty);
+                t.setText("No trending shows\nThat's really weird.");
+                t.setVisibility(View.VISIBLE);
+            }
+        } else {
+            TextView t = (TextView) findViewById(android.R.id.empty);
+            t.setText("Problem loading data!\nVerify your network.");
+            t.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.GONE);
         }
     }
 
+    @Override
+    public void onLoaderReset(Loader loader) {
+        list.setAdapter(null);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -120,26 +145,8 @@ public class StartActivity extends ActionBarActivity {
             img.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    /*listToAdd.add(sh);
-                    Show s = new Show();
-                    s.setId(sh.getId());
-                    s.setName(sh.getName());
-                    s.setFirstAired(new Date());
-                    s.setSummary(sh.getSummary());
-                    s.setNetwork(sh.getNetwork());
-                    TestContent.SHOWS.add(s);*/
-                    try {
-                        //TestContent.SHOWS.add(new ShowExtendedParser(sh.getId()).get());
-                        //TestContent.SHOWS.add(new ShowParser(sh.getId()).get());
-                        Show show = new ShowExtendedParser(sh.getId()).get();
-                        Comm.showsList.add(show);
-                        new DBHelper(getContext(), null).persistCompleteShow(show);
-                        ((OnShowListInteractionListener) Comm.mainContext).onShowListInteraction();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    new ShowAdder().execute(sh.getId());
                     img.setImageResource(R.drawable.ic_correct);
-                    Toast.makeText(context, sh.getName() + " adicionada", Toast.LENGTH_SHORT).show();
                 }
             });
             rowView.setOnClickListener(new View.OnClickListener() {
@@ -150,6 +157,34 @@ public class StartActivity extends ActionBarActivity {
             });
 
             return rowView;
+        }
+
+        private class ShowAdder extends AsyncTask<Integer, Void, Void> {
+
+            @Override
+            protected Void doInBackground(Integer... integers) {
+                final Show show;
+                try {
+                    show = new ShowExtendedParser(integers[0]).get();
+                    new DBHelper(context, null).persistCompleteShow(show);
+                    Comm.showsList.add(show);
+                    ((OnShowListInteractionListener) Comm.mainContext).onShowListInteraction();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), show.getName() + " adicionada", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } catch (Exception e) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(context, "Couldn't add the show", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+                return null;
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.seriesmanager.app.parsers.trakt;
 
 import android.os.AsyncTask;
+import android.os.Build;
 
 import com.seriesmanager.app.Constants;
 import com.seriesmanager.app.entities.Episode;
@@ -27,12 +28,18 @@ public class ShowExtendedParser extends AsyncTask<String, Integer, Show> {
 
     public ShowExtendedParser(String entry) {
         this.entry = entry;
-        this.execute();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+            this.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        else
+            this.execute();
     }
 
     public ShowExtendedParser(int entry) {
         this.entry = Integer.toString(entry);
-        this.execute();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
+            this.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        else
+            this.execute();
     }
 
     @Override

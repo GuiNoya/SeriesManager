@@ -84,7 +84,7 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COLUMN_OVERVIEW, show.getSummary());
         values.put(COLUMN_NETWORK, show.getNetwork());
         values.put(COLUMN_FAVORITE, show.isFavorite() ? 1 : 0);
-        values.put(COLUMN_DATE, new SimpleDateFormat("yyyy/MM/dd").format(show.getFirstAired()));
+        values.put(COLUMN_DATE, new SimpleDateFormat("yyyy-MM-dd").format(show.getFirstAired()));
 
         SQLiteDatabase db = getWritableDatabase();
         db.insert(TABLE_SHOW, null, values);
@@ -94,7 +94,6 @@ public class DBHelper extends SQLiteOpenHelper {
     public void persistSeason(Season season) {
         ContentValues values = new ContentValues();
 
-        //values.put(COLUMN_ID, season.getId());
         values.put(COLUMN_NUMBER, season.getSeasonNumber());
         values.put(COLUMN_ID_FOREIGN, season.getShow().getId());
 
@@ -121,7 +120,7 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COLUMN_OVERVIEW, ep.getSummary());
         values.put(COLUMN_WATCHED, ep.isWatched() ? 1 : 0);
         values.put(COLUMN_RATING, (int) ep.getRating());
-        values.put(COLUMN_DATE, new SimpleDateFormat("yyyy/MM/dd").format(ep.getAirDate()));
+        values.put(COLUMN_DATE, new SimpleDateFormat("yyyy-MM-dd").format(ep.getAirDate()));
 
         SQLiteDatabase db = getWritableDatabase();
         db.insert(TABLE_EPISODE, null, values);
@@ -161,7 +160,7 @@ public class DBHelper extends SQLiteOpenHelper {
             show.setNetwork(cursor.getString(3));
             show.setFavorite(cursor.getInt(4) == 1);
             try {
-                show.setFirstAired(new SimpleDateFormat("yyyy/MM/dd").parse(cursor.getString(5)));
+                show.setFirstAired(new SimpleDateFormat("yyyy-MM-dd").parse(cursor.getString(5)));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -204,7 +203,7 @@ public class DBHelper extends SQLiteOpenHelper {
                         episode.setWatched(cursor2.getInt(4) == 1);
                         episode.setRating((short) cursor2.getInt(5));
                         try {
-                            episode.setAirDate(new SimpleDateFormat("yyyy/MM/dd").parse(cursor2.getString(6)));
+                            episode.setAirDate(new SimpleDateFormat("yyyy-MM-dd").parse(cursor2.getString(6)));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -275,8 +274,8 @@ public class DBHelper extends SQLiteOpenHelper {
         List<Show> lista = new ArrayList<Show>();
         String query = "SELECT s." + COLUMN_ID_FOREIGN + ", COUNT(s."
                 + COLUMN_ID_FOREIGN + ") FROM " + TABLE_EPISODE + " e, " + TABLE_SEASON + " s "
-                + "WHERE e." + COLUMN_WATCHED + "=0 and e." + COLUMN_ID_FOREIGN + "=s." + COLUMN_ID
-                + " GROUP BY s." + COLUMN_ID_FOREIGN;
+                + "WHERE e." + COLUMN_WATCHED + "=0 and e." + COLUMN_DATE + "<date('now') and e."
+                + COLUMN_ID_FOREIGN + "=s." + COLUMN_ID + " GROUP BY s." + COLUMN_ID_FOREIGN;
 
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
