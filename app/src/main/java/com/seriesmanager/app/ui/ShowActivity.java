@@ -34,11 +34,17 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //TODO: Remove this, separate all instances of the show (communication only by ids or numbers)
+        if (Comm.actualShow == null) {
+            Comm.actualShow = new DBHelper(this, null).loadCompleteShow(getIntent().getExtras().getInt("show"));
+        }
+
         setContentView(R.layout.activity_show);
 
-        final android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+        final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(false);
-        actionBar.setNavigationMode(android.support.v7.app.ActionBar.NAVIGATION_MODE_TABS);
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 

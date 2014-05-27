@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.seriesmanager.app.adapters.CalendarAdapter;
 import com.seriesmanager.app.entities.Episode;
 import com.seriesmanager.app.entities.Season;
 import com.seriesmanager.app.entities.Show;
@@ -270,6 +271,15 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void updateEpisodeWatched(long episodeId, boolean watched) {
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_WATCHED, watched ? 1 : 0);
+
+        SQLiteDatabase db = getWritableDatabase();
+        db.update(TABLE_EPISODE, values, COLUMN_ID + " = " + episodeId, null);
+        db.close();
+    }
+
     public List<Show> loadOverdueShows() {
         List<Show> lista = new ArrayList<Show>();
         String query = "SELECT s." + COLUMN_ID_FOREIGN + ", COUNT(s."
@@ -297,26 +307,77 @@ public class DBHelper extends SQLiteOpenHelper {
         return lista;
     }
 
-    /*public List<Show> loadCalendarShows(){
-        List<Show> lista = new ArrayList<Show>();
-        String query = "SELECT s." + COLUMN_ID_FOREIGN + ", COUNT(" + "s."
-                + COLUMN_ID_FOREIGN + ") FROM " + TABLE_EPISODE + " e, " + TABLE_SEASON + " s "
-                + "WHERE e." + COLUMN_WATCHED + "=0 and e." + COLUMN_ID_FOREIGN + "=s." + COLUMN_ID;
+    public List<CalendarAdapter.ParentGroup> loadCalendarShows() {
+        List<CalendarAdapter.ParentGroup> lists = new ArrayList<CalendarAdapter.ParentGroup>();
+        lists.add(new CalendarAdapter.ParentGroup("Previous"));
+        lists.add(new CalendarAdapter.ParentGroup("Today"));
+        lists.add(new CalendarAdapter.ParentGroup("Soon"));
+
+        String query = "SELECT sh." + COLUMN_ID + ", sh." + COLUMN_NAME + ", s." + COLUMN_NUMBER
+                + ", e." + COLUMN_NUMBER + ", e." + COLUMN_ID + ", e." + COLUMN_NAME + ", e."
+                + COLUMN_DATE + ", e." + COLUMN_WATCHED + " from " + TABLE_EPISODE + " e, " + TABLE_SEASON
+                + " s, " + TABLE_SHOW + " sh where e." + COLUMN_DATE + "<date('now') and e." + COLUMN_DATE
+                + ">date('now', '-7 days') and e." + COLUMN_ID_FOREIGN + "=s." + COLUMN_ID + " and s."
+                + COLUMN_ID_FOREIGN + "=sh." + COLUMN_ID + " ORDER BY e." + COLUMN_DATE;
 
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
 
+        List<CalendarAdapter.CalendarEpisode> list = loadCalendarEpisode(cursor);
+        lists.get(0).setArrayChildren(list);
+
+        query = "SELECT sh." + COLUMN_ID + ", sh." + COLUMN_NAME + ", s." + COLUMN_NUMBER
+                + ", e." + COLUMN_NUMBER + ", e." + COLUMN_ID + ", e." + COLUMN_NAME + ", e."
+                + COLUMN_DATE + ", e." + COLUMN_WATCHED + " from " + TABLE_EPISODE + " e, " + TABLE_SEASON
+                + " s, " + TABLE_SHOW + " sh where e." + COLUMN_DATE + "=date('now') and e."
+                + COLUMN_ID_FOREIGN + "=s." + COLUMN_ID + " and s." + COLUMN_ID_FOREIGN + "=sh."
+                + COLUMN_ID + " ORDER BY e." + COLUMN_DATE;
+
+        cursor = db.rawQuery(query, null);
+
+        list = loadCalendarEpisode(cursor);
+        lists.get(1).setArrayChildren(list);
+
+        query = "SELECT sh." + COLUMN_ID + ", sh." + COLUMN_NAME + ", s." + COLUMN_NUMBER
+                + ", e." + COLUMN_NUMBER + ", e." + COLUMN_ID + ", e." + COLUMN_NAME + ", e."
+                + COLUMN_DATE + ", e." + COLUMN_WATCHED + " from " + TABLE_EPISODE + " e, " + TABLE_SEASON
+                + " s, " + TABLE_SHOW + " sh where e." + COLUMN_DATE + ">date('now') and e." + COLUMN_DATE
+                + "<date('now', '+7 days') and e." + COLUMN_ID_FOREIGN + "=s." + COLUMN_ID + " and s."
+                + COLUMN_ID_FOREIGN + "=sh." + COLUMN_ID + " ORDER BY e." + COLUMN_DATE;
+
+        cursor = db.rawQuery(query, null);
+
+        list = loadCalendarEpisode(cursor);
+        lists.get(2).setArrayChildren(list);
+
+        db.close();
+        return lists;
+    }
+
+    private List<CalendarAdapter.CalendarEpisode> loadCalendarEpisode(Cursor cursor) {
+        List<CalendarAdapter.CalendarEpisode> list = new ArrayList<CalendarAdapter.CalendarEpisode>();
+        SimpleDateFormat format = new SimpleDateFormat("yy-MM-dd");
+
         if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
-                Show show = loadShow(cursor.getInt(0));
-                show.setNumberOverdue(cursor.getInt(1));
-                lista.add(show);
+                CalendarAdapter.CalendarEpisode ep = new CalendarAdapter.CalendarEpisode();
+                ep.setShowId(cursor.getInt(0));
+                ep.setShowName(cursor.getString(1));
+                ep.setSeasonNumber(cursor.getInt(2));
+                ep.setEpisodeNumber(cursor.getInt(3));
+                ep.setId(cursor.getLong(4));
+                ep.setName(cursor.getString(5));
+                try {
+                    ep.setAirDate(format.parse(cursor.getString(6)));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                ep.setWatched(cursor.getInt(7) == 1);
+                list.add(ep);
                 cursor.moveToNext();
             }
         }
-
-        db.close();
-        return lista;
-    }*/
+        return list;
+    }
 
 }

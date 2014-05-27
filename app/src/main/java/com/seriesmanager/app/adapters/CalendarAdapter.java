@@ -17,6 +17,7 @@ import com.seriesmanager.app.entities.Episode;
 import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
 import com.seriesmanager.app.ui.ShowActivity;
 
+import java.util.Date;
 import java.util.List;
 
 public class CalendarAdapter extends BaseExpandableListAdapter {
@@ -83,10 +84,10 @@ public class CalendarAdapter extends BaseExpandableListAdapter {
             view = inflater.inflate(R.layout.fragment_calendar_show, viewGroup, false);
         }
 
-        final Episode ep = mParent.get(i).getArrayChildren().get(i1);
+        final CalendarEpisode ep = mParent.get(i).getArrayChildren().get(i1);
 
-        ((TextView) view.findViewById(R.id.text_name)).setText(ep.getShow().getName());
-        String se = "S" + ep.getSeason().getSeasonNumber() + "E" + ep.getEpisodeNumber();
+        ((TextView) view.findViewById(R.id.text_name)).setText(ep.getShowName());
+        String se = "S" + ep.getSeasonNumber() + "E" + ep.getEpisodeNumber();
         ((TextView) view.findViewById(R.id.text_episode)).setText(se);
         String[] datas = ep.getAirDate().toString().split(" ");
         String data = datas[0] + " " + datas[2] + " " + datas[1];
@@ -98,21 +99,18 @@ public class CalendarAdapter extends BaseExpandableListAdapter {
             @Override
             public void onClick(View view) {
                 ep.setWatched(cb.isChecked());
-                ((OnEpisodeInteractionListener) context).onEpisodeInteraction(ep);
+                new DBHelper(context, null).updateEpisodeWatched(ep.getId(), ep.isWatched());
+                ((OnEpisodeInteractionListener) context).onEpisodeInteraction(new Episode());
+                //TODO: fix interactions
             }
         });
 
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!ep.getSeason().getShow().isLoaded()) {
-                    new DBHelper(Comm.mainContext, null).loadShowExtraInfo(ep.getSeason().getShow());
-                    ep.getSeason().getShow().setLoaded(true);
-                }
-                Comm.actualSeason = ep.getSeason();
-                Comm.actualShow = ep.getSeason().getShow();
                 Intent intent = new Intent(Comm.mainContext, ShowActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra("show", (int) ep.getShowId());
                 Comm.mainContext.startActivity(intent);
             }
         });
@@ -149,7 +147,7 @@ public class CalendarAdapter extends BaseExpandableListAdapter {
 
     public static class ParentGroup {
         private String mTitle;
-        private List<Episode> mArrayChildren;
+        private List<CalendarEpisode> mArrayChildren;
 
         public ParentGroup() {
         }
@@ -158,7 +156,7 @@ public class CalendarAdapter extends BaseExpandableListAdapter {
             this.mTitle = mTitle;
         }
 
-        public ParentGroup(String mTitle, List<Episode> mArrayChildren) {
+        public ParentGroup(String mTitle, List<CalendarEpisode> mArrayChildren) {
             this.mTitle = mTitle;
             this.mArrayChildren = mArrayChildren;
         }
@@ -171,12 +169,91 @@ public class CalendarAdapter extends BaseExpandableListAdapter {
             this.mTitle = mTitle;
         }
 
-        public List<Episode> getArrayChildren() {
+        public List<CalendarEpisode> getArrayChildren() {
             return mArrayChildren;
         }
 
-        public void setArrayChildren(List<Episode> mArrayChildren) {
+        public void setArrayChildren(List<CalendarEpisode> mArrayChildren) {
             this.mArrayChildren = mArrayChildren;
+        }
+    }
+
+    public static class CalendarEpisode {
+
+        private long id;
+        private long showId;
+        private String showName;
+        private int seasonNumber;
+        private int episodeNumber;
+        private String name;
+        private Date airDate;
+        private boolean watched;
+
+        public CalendarEpisode() {
+        }
+
+        public long getId() {
+            return id;
+        }
+
+        public void setId(long id) {
+            this.id = id;
+        }
+
+        public long getShowId() {
+            return showId;
+        }
+
+        public void setShowId(long showId) {
+            this.showId = showId;
+        }
+
+        public String getShowName() {
+            return showName;
+        }
+
+        public void setShowName(String showName) {
+            this.showName = showName;
+        }
+
+        public int getSeasonNumber() {
+            return seasonNumber;
+        }
+
+        public void setSeasonNumber(int seasonNumber) {
+            this.seasonNumber = seasonNumber;
+        }
+
+        public int getEpisodeNumber() {
+            return episodeNumber;
+        }
+
+        public void setEpisodeNumber(int episodeNumber) {
+            this.episodeNumber = episodeNumber;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public Date getAirDate() {
+            return airDate;
+        }
+
+        public void setAirDate(Date airDate) {
+            this.airDate = airDate;
+        }
+
+        public boolean isWatched() {
+            return watched;
+        }
+
+        public void setWatched(boolean watched) {
+            this.watched = watched;
         }
     }
 }

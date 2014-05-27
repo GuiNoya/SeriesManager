@@ -12,12 +12,10 @@ import android.widget.ListView;
 
 import com.seriesmanager.app.R;
 import com.seriesmanager.app.adapters.CalendarAdapter;
-import com.seriesmanager.app.entities.Episode;
-import com.seriesmanager.app.fillers.TestContent;
+import com.seriesmanager.app.database.DBHelper;
 import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
 
-import java.util.ArrayList;
-import java.util.Date;
+import java.util.List;
 
 public class CalendarFragment extends ListFragment {
 
@@ -54,27 +52,17 @@ public class CalendarFragment extends ListFragment {
 
         ExpandableListView lv = (ExpandableListView) getActivity().findViewById(R.id.container_calendar).findViewById(android.R.id.list);
 
-        TestContent.LIST_GROUPS.get(0).setArrayChildren(new ArrayList<Episode>());
-        TestContent.LIST_GROUPS.get(1).setArrayChildren(new ArrayList<Episode>());
-        TestContent.LIST_GROUPS.get(2).setArrayChildren(new ArrayList<Episode>());
-        //List<ParentGroup> arrayParents = new ArrayList<ParentGroup>();
-
-        Date today = new Date(1998, 5, 20);
-        Date day1 = new Date(1998, 5, 13);
-        Date day2 = new Date(1998, 5, 27);
-
-        for (Episode ep : TestContent.EPISODE_LIST) {
-            if (day1.before(ep.getAirDate()) && today.after(ep.getAirDate())) {
-                TestContent.LIST_GROUPS.get(0).getArrayChildren().add(ep);
-            } else if (day2.after(ep.getAirDate()) && today.before(ep.getAirDate())) {
-                TestContent.LIST_GROUPS.get(2).getArrayChildren().add(ep);
-            } else if (today.compareTo(ep.getAirDate()) == 0) {
-                TestContent.LIST_GROUPS.get(1).getArrayChildren().add(ep);
+        List<CalendarAdapter.ParentGroup> list = new DBHelper(getActivity(), null).loadCalendarShows();
+        mAdapter = new CalendarAdapter(getActivity(), list);
+        lv.setAdapter(mAdapter);
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getArrayChildren().size() == 0) {
+                list.remove(i);
+                i--;
+            } else if (list.get(i).getTitle().equals("Today")) {
+                lv.expandGroup(i);
             }
         }
-        mAdapter = new CalendarAdapter(getActivity(), TestContent.LIST_GROUPS);
-        lv.setAdapter(mAdapter);
-        lv.expandGroup(1);
     }
 
     @Override
@@ -93,7 +81,6 @@ public class CalendarFragment extends ListFragment {
         super.onDetach();
         mListener = null;
     }
-
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {

@@ -168,7 +168,8 @@ public class AddShowTrendingsFragment extends ListFragment implements LoaderMana
                 @Override
                 public void onClick(View view) {
                     img.setImageResource(R.drawable.ic_correct);
-                    Toast.makeText(context, sh.getName() + " adicionada", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(context, sh.getName() + " adicionada", Toast.LENGTH_SHORT).show();
+                    img.setOnClickListener(null);
                     try {
                         new ShowAdder().execute(sh.getId());
                         mListener.onShowListInteraction();
@@ -200,7 +201,7 @@ public class AddShowTrendingsFragment extends ListFragment implements LoaderMana
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getContext(), show.getName() + " adicionada", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), show.getName() + " added", Toast.LENGTH_SHORT).show();
                         }
                     });
                 } catch (Exception e) {
