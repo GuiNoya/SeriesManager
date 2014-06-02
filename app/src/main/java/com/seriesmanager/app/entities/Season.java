@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Season {
-    private int id;
+    private int id = -1;
     private Show show;
     private int seasonNumber;
     private Image cover;

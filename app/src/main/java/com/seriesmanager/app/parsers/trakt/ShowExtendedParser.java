@@ -60,6 +60,7 @@ public class ShowExtendedParser extends AsyncTask<String, Integer, Show> {
             show.setSummary(jsonObj.getString("overview"));
             show.setFirstAired(new Date(jsonObj.getLong("first_aired") * 1000));
             show.setNetwork(jsonObj.getString("network"));
+            show.setLastUpdated(new Date().getTime());
             List<String> genres = new ArrayList<String>();
             JSONArray jsonArr = jsonObj.getJSONArray("genres");
             for (int i = 0; i < jsonArr.length(); i++) {

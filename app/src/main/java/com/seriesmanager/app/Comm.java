@@ -14,4 +14,5 @@ public class Comm {
     public static Episode actualEpisode = null;
     public static Context mainContext = null;
     public static List<Show> showsList = null;
+    public static boolean updated = false;
 }

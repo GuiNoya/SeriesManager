@@ -20,7 +20,7 @@ import java.util.List;
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "database.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     private static final String TABLE_SHOW = "shows";
     private static final String TABLE_SEASON = "seasons";
@@ -32,6 +32,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String COLUMN_NETWORK = "network";
     private static final String COLUMN_FAVORITE = "favorite";
     private static final String COLUMN_DATE = "date";
+    private static final String COLUMN_LAST_UPDATED = "last_updated";
 
     private static final String COLUMN_NUMBER = "number";
     private static final String COLUMN_ID_FOREIGN = "fid";
@@ -48,7 +49,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         String createShowTable = "CREATE TABLE " + TABLE_SHOW + "(" + COLUMN_ID + " INTEGER PRIMARY KEY, "
                 + COLUMN_NAME + " TEXT NOT NULL, " + COLUMN_OVERVIEW + " TEXT, " + COLUMN_NETWORK + " TEXT, "
-                + COLUMN_FAVORITE + " INTEGER, " + COLUMN_DATE + " TEXT" + ");";
+                + COLUMN_FAVORITE + " INTEGER, " + COLUMN_DATE + " TEXT," + COLUMN_LAST_UPDATED + " INTEGER);";
 
         String createSeasonTable = "CREATE TABLE " + TABLE_SEASON + "(" + COLUMN_ID
                 + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_NUMBER + " INTEGER NOT NULL, "
@@ -86,6 +87,7 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COLUMN_NETWORK, show.getNetwork());
         values.put(COLUMN_FAVORITE, show.isFavorite() ? 1 : 0);
         values.put(COLUMN_DATE, new SimpleDateFormat("yyyy-MM-dd").format(show.getFirstAired()));
+        values.put(COLUMN_LAST_UPDATED, show.getLastUpdated());
 
         SQLiteDatabase db = getWritableDatabase();
         db.insert(TABLE_SHOW, null, values);
@@ -165,6 +167,7 @@ public class DBHelper extends SQLiteOpenHelper {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            show.setLastUpdated(cursor.getLong(6));
         }
 
         db.close();
@@ -241,6 +244,18 @@ public class DBHelper extends SQLiteOpenHelper {
         return lista;
     }
 
+    public void updateCompleteShow(Show show) {
+        ContentValues values = new ContentValues();
+
+        updateShow(show);
+        for (Season s : show.getSeasons().values()) {
+            updateOrPersistSeason(s);
+            for (Episode ep : s.getEpisodes().values()) {
+                updateOrPersistEpisode(ep);
+            }
+        }
+    }
+
     public void updateShow(Show show) {
         ContentValues values = new ContentValues();
 
@@ -249,9 +264,58 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COLUMN_OVERVIEW, show.getSummary());
         values.put(COLUMN_NETWORK, show.getNetwork());
         values.put(COLUMN_FAVORITE, show.isFavorite() ? 1 : 0);
+        values.put(COLUMN_LAST_UPDATED, show.getLastUpdated());
+        values.put(COLUMN_DATE, new SimpleDateFormat("yyyy-MM-dd").format(show.getFirstAired()));
 
         SQLiteDatabase db = getWritableDatabase();
         db.update(TABLE_SHOW, values, COLUMN_ID + " = " + show.getId(), null);
+        db.close();
+    }
+
+    public void updateOrPersistSeason(Season season) {
+        ContentValues values = new ContentValues();
+
+        values.put(COLUMN_NUMBER, season.getSeasonNumber());
+        values.put(COLUMN_ID_FOREIGN, season.getShow().getId());
+
+        SQLiteDatabase db = getWritableDatabase();
+        if (season.getId() < 0) {
+            db.insert(TABLE_SEASON, null, values);
+            String query = "SELECT " + COLUMN_ID + " FROM " + TABLE_SEASON + " WHERE " + COLUMN_ID_FOREIGN + " = "
+                    + season.getShow().getId() + " AND " + COLUMN_NUMBER + " = " + season.getSeasonNumber();
+            Cursor cursor = db.rawQuery(query, null);
+            cursor.moveToFirst();
+            season.setId(cursor.getInt(0));
+        } else {
+            db.update(TABLE_SEASON, values, COLUMN_ID + " = " + season.getId(), null);
+        }
+        db.close();
+    }
+
+    public void updateOrPersistEpisode(Episode ep) {
+        ContentValues values = new ContentValues();
+
+        values.put(COLUMN_ID_FOREIGN, ep.getSeason().getId());
+        values.put(COLUMN_NUMBER, ep.getEpisodeNumber());
+        values.put(COLUMN_NAME, ep.getName());
+        values.put(COLUMN_OVERVIEW, ep.getSummary());
+        values.put(COLUMN_WATCHED, ep.isWatched() ? 1 : 0);
+        values.put(COLUMN_RATING, (int) ep.getRating());
+
+        SQLiteDatabase db = getReadableDatabase();
+        String query = "SELECT " + COLUMN_ID + " FROM " + TABLE_EPISODE + " WHERE " + COLUMN_ID + " = "
+                + ep.getId();
+        Cursor cursor = db.rawQuery(query, null);
+        db = getWritableDatabase();
+        if (cursor.moveToFirst()) {
+            db.close();
+            db = getWritableDatabase();
+            db.update(TABLE_EPISODE, values, COLUMN_ID + " = " + ep.getId(), null);
+        } else {
+            db.close();
+            db = getWritableDatabase();
+            db.insert(TABLE_EPISODE, null, values);
+        }
         db.close();
     }
 
@@ -378,6 +442,23 @@ public class DBHelper extends SQLiteOpenHelper {
             }
         }
         return list;
+    }
+
+    public int getSeasonId(long showId, int number) {
+        String query = "SELECT " + COLUMN_ID + " FROM " + TABLE_SEASON + " WHERE " + COLUMN_ID_FOREIGN
+                + " = " + showId + " AND " + COLUMN_NUMBER + " = " + number;
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            int id = cursor.getInt(0);
+            db.close();
+            return id;
+        }
+
+        db.close();
+        return -1;
     }
 
 }

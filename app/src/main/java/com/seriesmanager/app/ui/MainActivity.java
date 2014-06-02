@@ -6,6 +6,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -25,14 +27,18 @@ import com.seriesmanager.app.entities.Show;
 import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
 import com.seriesmanager.app.interfaces.OnShowInteractionListener;
 import com.seriesmanager.app.interfaces.OnShowListInteractionListener;
+import com.seriesmanager.app.loaders.UpdateShowsLoader;
 import com.seriesmanager.app.ui.fragments.CalendarFragment;
 import com.seriesmanager.app.ui.fragments.ShowFragment;
 import com.seriesmanager.app.ui.fragments.ShowOverdueFragment;
 
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, OnShowListInteractionListener, OnShowInteractionListener, OnEpisodeInteractionListener, ShowOverdueFragment.OnFragmentInteractionListener {
+public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, LoaderManager.LoaderCallbacks<List<Show>>, OnShowListInteractionListener, OnShowInteractionListener, OnEpisodeInteractionListener, ShowOverdueFragment.OnFragmentInteractionListener {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
@@ -45,12 +51,16 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         Comm.mainContext = MainActivity.this;
 
+        findViewById(R.id.progress_bar_update).setVisibility(View.GONE);
+
         Comm.showsList = new DBHelper(this, null).loadShowsAll();
 
         if (Comm.showsList.size() == 0) {
             Intent intent = new Intent(this, StartActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
+        } else {
+            getSupportLoaderManager().initLoader(3, null, this);
         }
 
         final ActionBar actionBar = getSupportActionBar();
@@ -99,6 +109,33 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Loader<List<Show>> onCreateLoader(int id, Bundle args) {
+        //Toast.makeText(this, "Updating shows...", Toast.LENGTH_SHORT).show();
+        findViewById(R.id.progress_bar_update).setVisibility(View.VISIBLE);
+        Map<Long, Long> map = new LinkedHashMap<Long, Long>();
+        long now = new Date().getTime();
+        for (Show show : Comm.showsList) {
+            //TODO: make show status interfere the update
+            if (show.getLastUpdated() < now - 86400000) {
+                map.put((long) show.getId(), show.getLastUpdated());
+            }
+        }
+        return new UpdateShowsLoader(this, map);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<Show>> loader, List<Show> data) {
+        findViewById(R.id.progress_bar_update).setVisibility(View.GONE);
+        //Toast.makeText(this, "Updated " + Integer.toString(data.size()) + " shows", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<Show>> loader) {
+        if (Comm.updated)
+            loader = null;
     }
 
     @Override
@@ -238,8 +275,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 getSupportFragmentManager().beginTransaction().add(R.id.container_shows, ShowFragment.newInstance("", ""), "shows").commit();
             } else if (getArguments().getInt(ARG_SECTION_NUMBER) == 4) {
                 rootView = inflater.inflate(R.layout.fragment_statistics, container, false);
-            } else {
-                Log.e("NOT EXPECTED", "This Shouldn't br reached! (.ui.MainActivity: onCreateView)");
             }
             return rootView;
         }

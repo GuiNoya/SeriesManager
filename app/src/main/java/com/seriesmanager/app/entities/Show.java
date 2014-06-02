@@ -21,6 +21,7 @@ public class Show {
     private boolean added = true;
     private int numberOverdue;
     private boolean loaded = false;
+    private long lastUpdated;
 
     public Show() {
         this.seasons = new HashMap<Integer, Season>();
@@ -187,5 +188,13 @@ public class Show {
 
     public void setLoaded(boolean loaded) {
         this.loaded = loaded;
+    }
+
+    public long getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public void setLastUpdated(long lastUpdated) {
+        this.lastUpdated = lastUpdated;
     }
 }
