@@ -32,8 +32,8 @@ public class UpdateShowsLoader extends AsyncTaskLoader<List<Show>> {
                     Show s = new ShowUpdateParser(showId, map.get(showId)).get();
                     if (s != null) {
                         list.add(s);
+                        new DBHelper(getContext(), null).updateCompleteShow(s);
                     }
-                    new DBHelper(getContext(), null).updateCompleteShow(s);
                 } catch (Exception e) {
                 }
                 map.remove(showId);

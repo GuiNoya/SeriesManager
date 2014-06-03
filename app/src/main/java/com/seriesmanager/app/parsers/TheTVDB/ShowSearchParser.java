@@ -19,6 +19,7 @@ import org.xml.sax.ContentHandler;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class ShowSearchParser extends AsyncTask<String, Integer, List<ShowSummary>> {
 
     List<ShowSummary> shows = new ArrayList<ShowSummary>();

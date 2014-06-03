@@ -314,6 +314,7 @@ public class DBHelper extends SQLiteOpenHelper {
         } else {
             db.close();
             db = getWritableDatabase();
+            values.put(COLUMN_ID, ep.getId());
             db.insert(TABLE_EPISODE, null, values);
         }
         db.close();
