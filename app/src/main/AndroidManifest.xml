@@ -17,24 +17,27 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <receiver android:name=".notifications.NotificationReceiver" />
+
         <activity
             android:name="com.seriesmanager.app.ui.ShowActivity"
             android:label="@string/title_activity_show"
             android:parentActivityName="com.seriesmanager.app.ui.MainActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.StartActivity"
-            android:label="@string/title_activity_start"></activity>
+            android:label="@string/title_activity_start" />
         <activity
             android:name="com.seriesmanager.app.ui.AddShowActivity"
             android:label="@string/title_activity_add_show"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name="com.seriesmanager.app.ui.SearchActivity"
-            android:label="@string/title_activity_search"></activity>
+            android:label="@string/title_activity_search" />
 
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
 </manifest>

@@ -43,6 +43,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
     private boolean isNeedingRefresh = false;
+    private boolean running;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +88,17 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        running = true;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        running = false;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -156,6 +168,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         super.onPostResume();
         if (isNeedingRefresh) {
             refreshFragments();
+            isNeedingRefresh = false;
         }
     }
 
@@ -175,19 +188,34 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public void onEpisodeInteraction(Episode ep) {
         Log.w("MainActivity", "onEpisodeInteraction");
-        isNeedingRefresh = true;
+        if (running) {
+            refreshFragments();
+            isNeedingRefresh = false;
+        } else {
+            isNeedingRefresh = true;
+        }
     }
 
     @Override
     public void onShowInteraction(Show show) {
         Log.w("MainActivity", "onShowInteraction");
-        isNeedingRefresh = true;
+        if (running) {
+            refreshFragments();
+            isNeedingRefresh = false;
+        } else {
+            isNeedingRefresh = true;
+        }
     }
 
     @Override
     public void onShowListInteraction() {
         Log.w("MainActivity", "onShowListInteraction");
-        isNeedingRefresh = true;
+        if (running) {
+            refreshFragments();
+            isNeedingRefresh = false;
+        } else {
+            isNeedingRefresh = true;
+        }
     }
 
     @Override

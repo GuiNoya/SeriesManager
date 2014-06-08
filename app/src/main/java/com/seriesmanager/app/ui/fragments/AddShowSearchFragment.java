@@ -26,10 +26,12 @@ import com.seriesmanager.app.entities.Show;
 import com.seriesmanager.app.entities.ShowSummary;
 import com.seriesmanager.app.interfaces.OnShowListInteractionListener;
 import com.seriesmanager.app.loaders.SearchShowLoader;
+import com.seriesmanager.app.notifications.Notification;
 import com.seriesmanager.app.parsers.trakt.ShowExtendedParser;
 import com.seriesmanager.app.ui.dialogs.ShowSummaryDialog;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class AddShowSearchFragment extends ListFragment implements LoaderManager.LoaderCallbacks<List<ShowSummary>> {
@@ -146,7 +148,7 @@ public class AddShowSearchFragment extends ListFragment implements LoaderManager
         Log.w("Fragment", "onLoaderReset");
     }
 
-    public static class SemiShowAdapter extends ArrayAdapter<ShowSummary> {
+    public class SemiShowAdapter extends ArrayAdapter<ShowSummary> {
         private final Context context;
         private final List<ShowSummary> values;
 
@@ -203,6 +205,10 @@ public class AddShowSearchFragment extends ListFragment implements LoaderManager
                     show = new ShowExtendedParser(integers[0]).get();
                     new DBHelper(context, null).persistCompleteShow(show);
                     Comm.showsList.add(show);
+                    //TODO: get real time of the episode and the seasonEpisode string
+                    Date date = new Date(new Date().getTime() + 10000);
+                    String seasonEpisode = new DBHelper(context, null).getNextShowEpisode(show.getId()).toString();
+                    Notification.newNotification(context, show.getId(), show.getName(), seasonEpisode, date);
                     ((OnShowListInteractionListener) Comm.mainContext).onShowListInteraction();
                     ((Activity) mListener).runOnUiThread(new Runnable() {
                         @Override

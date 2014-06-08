@@ -25,10 +25,12 @@ import com.seriesmanager.app.entities.Show;
 import com.seriesmanager.app.entities.ShowSummary;
 import com.seriesmanager.app.interfaces.OnShowListInteractionListener;
 import com.seriesmanager.app.loaders.TrendingsLoader;
+import com.seriesmanager.app.notifications.Notification;
 import com.seriesmanager.app.parsers.trakt.ShowExtendedParser;
 import com.seriesmanager.app.ui.dialogs.ShowSummaryDialog;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -168,6 +170,10 @@ public class StartActivity extends ActionBarActivity implements LoaderManager.Lo
                     show = new ShowExtendedParser(integers[0]).get();
                     new DBHelper(context, null).persistCompleteShow(show);
                     Comm.showsList.add(show);
+                    //TODO: get real time of the episode and the seasonEpisode string
+                    Date date = new Date(new Date().getTime() + 10000);
+                    String seasonEpisode = new DBHelper(context, null).getNextShowEpisode(show.getId()).toString();
+                    Notification.newNotification(context, show.getId(), show.getName(), seasonEpisode, date);
                     ((OnShowListInteractionListener) Comm.mainContext).onShowListInteraction();
                     runOnUiThread(new Runnable() {
                         @Override

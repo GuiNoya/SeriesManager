@@ -98,6 +98,9 @@ public class ShowFragment extends ListFragment {
     }
 
     public void notifyDataChanged() {
+        Comm.showsList = new DBHelper(getActivity(), null).loadShowsAll();
+        mAdapter = new ShowListAdapter(getActivity(), Comm.showsList);
+        setListAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
     }
 

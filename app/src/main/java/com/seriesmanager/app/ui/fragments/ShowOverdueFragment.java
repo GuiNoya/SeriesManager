@@ -95,6 +95,8 @@ public class ShowOverdueFragment extends ListFragment {
     }
 
     public void notifyDataChanged() {
+        mAdapter = new OverdueAdapter(getActivity(), new DBHelper(getActivity(), null).loadOverdueShows());
+        setListAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
     }
 

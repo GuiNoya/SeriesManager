@@ -94,7 +94,20 @@ public class CalendarFragment extends ListFragment {
     }
 
     public void notifyDataChanged() {
-        mAdapter.notifyDataSetChanged();
+        ExpandableListView lv = (ExpandableListView) getActivity().findViewById(R.id.container_calendar).findViewById(android.R.id.list);
+
+        List<CalendarAdapter.ParentGroup> list = new DBHelper(getActivity(), null).loadCalendarShows();
+        mAdapter = new CalendarAdapter(getActivity(), list);
+        lv.setAdapter(mAdapter);
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getArrayChildren().size() == 0) {
+                list.remove(i);
+                i--;
+            } else if (list.get(i).getTitle().equals("Today")) {
+                lv.expandGroup(i);
+            }
+        }
+        //mAdapter.notifyDataSetChanged();
     }
 
     public interface OnFragmentInteractionListener {

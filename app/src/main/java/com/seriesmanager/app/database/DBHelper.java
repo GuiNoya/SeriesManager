@@ -20,7 +20,7 @@ import java.util.List;
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "database.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     private static final String TABLE_SHOW = "shows";
     private static final String TABLE_SEASON = "seasons";
@@ -33,6 +33,7 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String COLUMN_FAVORITE = "favorite";
     private static final String COLUMN_DATE = "date";
     private static final String COLUMN_LAST_UPDATED = "last_updated";
+    private static final String COLUMN_NEXT_EPISODE = "next_ep";
 
     private static final String COLUMN_NUMBER = "number";
     private static final String COLUMN_ID_FOREIGN = "fid";
@@ -49,7 +50,9 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         String createShowTable = "CREATE TABLE " + TABLE_SHOW + "(" + COLUMN_ID + " INTEGER PRIMARY KEY, "
                 + COLUMN_NAME + " TEXT NOT NULL, " + COLUMN_OVERVIEW + " TEXT, " + COLUMN_NETWORK + " TEXT, "
-                + COLUMN_FAVORITE + " INTEGER, " + COLUMN_DATE + " TEXT," + COLUMN_LAST_UPDATED + " INTEGER);";
+                + COLUMN_FAVORITE + " INTEGER, " + COLUMN_DATE + " TEXT," + COLUMN_LAST_UPDATED + " INTEGER, "
+                + COLUMN_NEXT_EPISODE + " INTEGER, FOREIGN KEY(" + COLUMN_NEXT_EPISODE + ") REFERENCES "
+                + TABLE_EPISODE + "(" + COLUMN_ID + "));";
 
         String createSeasonTable = "CREATE TABLE " + TABLE_SEASON + "(" + COLUMN_ID
                 + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_NUMBER + " INTEGER NOT NULL, "
@@ -138,6 +141,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 persistEpisode(ep);
             }
         }
+
+        updateNextShowEpisode(show.getId());
     }
 
     public Show loadCompleteShow(int tvdbId) {
@@ -245,7 +250,6 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     public void updateCompleteShow(Show show) {
-        ContentValues values = new ContentValues();
 
         updateShow(show);
         for (Season s : show.getSeasons().values()) {
@@ -254,6 +258,8 @@ public class DBHelper extends SQLiteOpenHelper {
                 updateOrPersistEpisode(ep);
             }
         }
+
+        updateNextShowEpisode(show.getId());
     }
 
     public void updateShow(Show show) {
@@ -421,7 +427,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private List<CalendarAdapter.CalendarEpisode> loadCalendarEpisode(Cursor cursor) {
         List<CalendarAdapter.CalendarEpisode> list = new ArrayList<CalendarAdapter.CalendarEpisode>();
-        SimpleDateFormat format = new SimpleDateFormat("yy-MM-dd");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
         if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
@@ -460,6 +466,43 @@ public class DBHelper extends SQLiteOpenHelper {
 
         db.close();
         return -1;
+    }
+
+    public Integer getNextShowEpisode(int showId) {
+        String query = "SELECT " + COLUMN_NEXT_EPISODE + " FROM shows WHERE id = " + showId;
+        Integer id = null;
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()) {
+            id = cursor.getInt(0);
+        }
+        db.close();
+
+        return id;
+    }
+
+    public Integer updateNextShowEpisode(int showId) {
+        String query = "SELECT e." + COLUMN_ID + " from " + TABLE_EPISODE + " e, " + TABLE_SEASON
+                + " s, " + TABLE_SHOW + " sh where e." + COLUMN_DATE + ">date('now') and "
+                + "e." + COLUMN_ID_FOREIGN + "=s." + COLUMN_ID + " and s."
+                + COLUMN_ID_FOREIGN + "=" + showId + " ORDER BY e." + COLUMN_DATE + " ASC LIMIT 1";
+        Integer id = null;
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()) {
+            id = cursor.getInt(0);
+        }
+        db.close();
+
+        db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_NEXT_EPISODE, id);
+        db.update(TABLE_SHOW, values, "id = " + showId, null);
+        db.close();
+
+        return id;
     }
 
 }
