@@ -98,7 +98,7 @@ public class AddShowActivity extends ActionBarActivity implements ActionBar.TabL
         AddShowSearchFragment frg = (AddShowSearchFragment) getSupportFragmentManager().findFragmentByTag("search");
 
         String str = frg.getQuery();
-        if (frg.getQuery().equals("")) {
+        if (str.equals("")) {
             return;
         }
         Bundle b = new Bundle();

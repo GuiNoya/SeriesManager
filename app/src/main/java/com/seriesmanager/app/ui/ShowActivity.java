@@ -1,5 +1,6 @@
 package com.seriesmanager.app.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -9,12 +10,15 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.seriesmanager.app.Comm;
+import com.seriesmanager.app.Constants;
 import com.seriesmanager.app.R;
 import com.seriesmanager.app.database.DBHelper;
 import com.seriesmanager.app.entities.Episode;
@@ -72,6 +76,24 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.show, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            return true;
+        } else if (id == R.id.action_share_show) {
+            shareShow(Comm.actualShow.getName());
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onTabSelected(ActionBar.Tab tab, android.support.v4.app.FragmentTransaction fragmentTransaction) {
         mViewPager.setCurrentItem(tab.getPosition());
     }
@@ -95,6 +117,14 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
         Comm.actualSeason = null;
         Comm.actualEpisode = null;
         super.onBackPressed();
+    }
+
+    public void shareShow(String showName) {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, Constants.TRAKT_SHOW_URL + showName.trim().toLowerCase().replaceAll(" +", "+"));
+        sendIntent.setType("text/plain");
+        startActivity(Intent.createChooser(sendIntent, "Share show via"));
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {

@@ -28,7 +28,6 @@ import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
 import com.seriesmanager.app.interfaces.OnShowInteractionListener;
 import com.seriesmanager.app.interfaces.OnShowListInteractionListener;
 import com.seriesmanager.app.loaders.UpdateShowsLoader;
-import com.seriesmanager.app.notifications.Notification;
 import com.seriesmanager.app.ui.fragments.CalendarFragment;
 import com.seriesmanager.app.ui.fragments.ShowFragment;
 import com.seriesmanager.app.ui.fragments.ShowOverdueFragment;
@@ -95,7 +94,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             }
         }
 
-        Notification.newNotification(this, 121361, "Game of Thrones", "S04E01", new Date(new Date().getTime() + 10000));
     }
 
     @Override

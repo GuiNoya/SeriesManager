@@ -22,7 +22,7 @@ public class ShowSearchParser extends AsyncTask<String, Integer, List<ShowSummar
     private String query;
 
     public ShowSearchParser(String entry) {
-        this.query = entry.trim().replace(" ", "+");
+        this.query = entry.trim().replaceAll(" +", "+");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
             this.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         else

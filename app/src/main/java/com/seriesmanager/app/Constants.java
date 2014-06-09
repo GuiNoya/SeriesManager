@@ -6,4 +6,6 @@ public class Constants {
 
     public static final String TRAKT_API_KEY = ***REMOVED***;
     public static final String THETVDB_API_KEY = ***REMOVED***;
+
+    public static final String TRAKT_SHOW_URL = "http://trakt.tv/show/";
 }

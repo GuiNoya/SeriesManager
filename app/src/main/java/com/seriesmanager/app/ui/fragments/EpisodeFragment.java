@@ -3,6 +3,7 @@ package com.seriesmanager.app.ui.fragments;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -14,6 +15,7 @@ import android.widget.ExpandableListView;
 import android.widget.ListView;
 
 import com.seriesmanager.app.Comm;
+import com.seriesmanager.app.Constants;
 import com.seriesmanager.app.R;
 import com.seriesmanager.app.adapters.ShowTempAdapter;
 import com.seriesmanager.app.database.DBHelper;
@@ -36,6 +38,7 @@ public class EpisodeFragment extends ListFragment {
     private String mParam2;
 
     private OnEpisodeInteractionListener mListener;
+    private ShowTempAdapter mAdapter;
 
     public EpisodeFragment() {
     }
@@ -78,28 +81,37 @@ public class EpisodeFragment extends ListFragment {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, final int pos, long id) {
                 if (ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_GROUP) {
-                    new AlertDialog.Builder(getActivity()).setTitle("Mark all watched")
-                            .setMessage("Are you sure do you want to mark all the episodes in the season watched?")
-                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    ShowTempAdapter adapter = ((ShowTempAdapter) lv.getExpandableListAdapter());
-                                    Iterator<Episode> it = adapter.getSeasonEpisodes(pos).iterator();
-                                    while (it.hasNext()) {
-                                        Episode ep = it.next();
-                                        if (!ep.isWatched()) {
-                                            ep.setWatched(true);
-                                            new DBHelper(getActivity(), null).updateEpisode(ep);
-                                        }
-                                        adapter.notifyDataSetChanged();
-                                    }
-                                }
-                            })
-                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                }
-                            }).show();
+                    CharSequence[] options = new CharSequence[]{"Share season", "Mark all watched"};
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("Select option");
+                    builder.setItems(options, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int which) {
+                            if (which == 0) {
+                                shareSeason(Comm.actualShow.getName(),
+                                        ((Season) lv.getItemAtPosition(pos)).getSeasonNumber());
+                            } else if (which == 1) {
+                                showMarkSeasonWatchedDialog(pos);
+                            }
+                        }
+                    });
+                    showMarkSeasonWatchedDialog(pos);
+                    return true;
+                } else if (ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_GROUP) {
+                    CharSequence[] options = new CharSequence[]{"Share episode"};
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("Select option");
+                    builder.setItems(options, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            if (which == 0) {
+                                shareEpisode(Comm.actualShow.getName(),
+                                        ((Episode) lv.getItemAtPosition(pos)).getSeason().getSeasonNumber(),
+                                        ((Episode) lv.getItemAtPosition(pos)).getEpisodeNumber());
+                            }
+                        }
+                    });
+                    builder.show();
                     return true;
                 }
                 return false;
@@ -117,6 +129,52 @@ public class EpisodeFragment extends ListFragment {
                 //lv.setSelectedChild(Comm.actualSeason.getSeasonNumber()-1, Comm.actualEpisode.getEpisodeNumber()-1, true);
             }
         }
+        ShowTempAdapter adapter = ((ShowTempAdapter) lv.getExpandableListAdapter());
+    }
+
+    private void showMarkSeasonWatchedDialog(final int pos) {
+        new AlertDialog.Builder(getActivity()).setTitle("Mark all watched")
+                .setMessage("Are you sure do you want to mark all the episodes in the season watched?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Iterator<Episode> it = mAdapter.getSeasonEpisodes(pos).iterator();
+                        while (it.hasNext()) {
+                            Episode ep = it.next();
+                            if (!ep.isWatched()) {
+                                ep.setWatched(true);
+                                new DBHelper(getActivity(), null).updateEpisode(ep);
+                            }
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                    }
+                }).show();
+    }
+
+    private void shareEpisode(String showName, int seasonNumber, int episodeNumber) {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        String url = Constants.TRAKT_SHOW_URL + showName.trim().toLowerCase().replaceAll(" +", "+")
+                + "/season/" + Integer.toString(seasonNumber) + "/episode/"
+                + Integer.toString(episodeNumber);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, url);
+        sendIntent.setType("text/plain");
+        startActivity(Intent.createChooser(sendIntent, "Share episode via"));
+    }
+
+    private void shareSeason(String showName, int seasonNumber) {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        String url = Constants.TRAKT_SHOW_URL + showName.trim().toLowerCase().replaceAll(" +", "+")
+                + "/season/" + Integer.toString(seasonNumber);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, url);
+        sendIntent.setType("text/plain");
+        startActivity(Intent.createChooser(sendIntent, "Share season via"));
     }
 
     @Override
