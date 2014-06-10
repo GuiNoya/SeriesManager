@@ -2,7 +2,6 @@ package com.seriesmanager.app.parsers.TheTVDB;
 
 import android.content.ContentValues;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.sax.Element;
 import android.sax.EndElementListener;
 import android.sax.EndTextElementListener;
@@ -33,19 +32,21 @@ public class ShowParser extends AsyncTask<String, Integer, Show> {
     private String entry;
 
     public ShowParser(String entry) {
-        this.entry = entry;
+        throw new RuntimeException("NOT WORKING. DEPRECATED (TVDB).");
+        /*this.entry = entry;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
             this.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         else
-            this.execute();
+            this.execute();*/
     }
 
     public ShowParser(int entry) {
-        this.entry = Integer.toString(entry);
+        throw new RuntimeException("NOT WORKING. DEPRECATED (TVDB).");
+        /*this.entry = Integer.toString(entry);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
             this.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         else
-            this.execute();
+            this.execute();*/
     }
 
     @Override
@@ -108,7 +109,7 @@ public class ShowParser extends AsyncTask<String, Integer, Show> {
                 new EndTextElementListener() {
                     public void end(String body) {
                         //show.setFirstAired(new Date(body));
-                        show.setFirstAired(new Date());
+                        //show.setFirstAired(new Date());
                     }
                 }
         );

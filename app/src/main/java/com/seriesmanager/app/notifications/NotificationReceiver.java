@@ -38,7 +38,7 @@ public class NotificationReceiver extends BroadcastReceiver {
         //TODO: get real time of the episode and the seasonEpisode string
         Date date = new Date(new Date().getTime() + 10000);
         String seasonEpisode = Integer.toString(dbHelper.getNextShowEpisode(intent.getIntExtra("id", 0)));
-        Notification.newNotification(context, intent.getIntExtra("id", 0),
-                intent.getStringExtra("name"), seasonEpisode, date);
+        //Notification.newNotification(context, intent.getIntExtra("id", 0),
+        //      intent.getStringExtra("name"), seasonEpisode, date);
     }
 }

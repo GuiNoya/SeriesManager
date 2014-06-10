@@ -1,20 +1,8 @@
 package com.seriesmanager.app.fillers;
 
-import com.seriesmanager.app.adapters.CalendarAdapter;
-import com.seriesmanager.app.entities.Episode;
-import com.seriesmanager.app.entities.Season;
-import com.seriesmanager.app.entities.Show;
-import com.seriesmanager.app.entities.ShowSummary;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class TestContent {
 
-    public static List<CalendarAdapter.ParentGroup> LIST_GROUPS = new ArrayList<CalendarAdapter.ParentGroup>();
+    /*public static List<CalendarAdapter.ParentGroup> LIST_GROUPS = new ArrayList<CalendarAdapter.ParentGroup>();
     public static List<Show> SHOWS = new ArrayList<Show>();
     public static Map<Integer, Show> SHOWS_MAP = new HashMap<Integer, Show>();
     public static List<Episode> EPISODE_LIST = new ArrayList<Episode>();
@@ -159,5 +147,5 @@ public class TestContent {
     private static void addEpisode(int i, Episode ep) {
         EPISODE_LIST.add(ep);
         E.put(i, ep);
-    }
+    }*/
 }

@@ -205,7 +205,7 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
                 ((TextView) rootView.findViewById(R.id.text_name)).setText(Comm.actualShow.getName());
                 ((TextView) rootView.findViewById(R.id.text_summary)).setText(Comm.actualShow.getSummary());
                 SimpleDateFormat ft = new SimpleDateFormat("dd/MM/yyyy");
-                ((TextView) rootView.findViewById(R.id.text_data)).setText(ft.format(Comm.actualShow.getFirstAired()));
+                ((TextView) rootView.findViewById(R.id.text_data)).setText(ft.format(Comm.actualShow.getYear()));
                 ((TextView) rootView.findViewById(R.id.text_emissora)).setText(Comm.actualShow.getNetwork());
             } else if (getArguments().getInt(ARG_SECTION_NUMBER) == 2) {
                 rootView = inflater.inflate(R.layout.fragment_list_show_seasons, container, false);

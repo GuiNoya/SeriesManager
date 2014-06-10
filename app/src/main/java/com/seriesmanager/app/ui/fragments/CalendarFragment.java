@@ -107,7 +107,7 @@ public class CalendarFragment extends ListFragment {
                 lv.expandGroup(i);
             }
         }
-        //mAdapter.notifyDataSetChanged();
+        mAdapter.notifyDataSetChanged();
     }
 
     public interface OnFragmentInteractionListener {

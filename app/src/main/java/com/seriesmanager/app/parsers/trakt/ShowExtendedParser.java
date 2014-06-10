@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -47,20 +48,20 @@ public class ShowExtendedParser extends AsyncTask<String, Integer, Show> {
         try {
             String url = Constants.TRAKT_DOMAIN_API + "show/summary.json/" + Constants.TRAKT_API_KEY + "/" + entry + "/extended";
             InputStream is = new NetworkGet(url).get();
-            //StringBuilder json = new StringBuilder();
             BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            /*String line = reader.readLine();
-            while (line != null){
-                json.append(line);
-                line = reader.readLine();
-            }*/
             JSONObject jsonObj = new JSONObject(reader.readLine());
             show.setId(jsonObj.getInt("tvdb_id"));
             show.setName(jsonObj.getString("title"));
             show.setSummary(jsonObj.getString("overview"));
-            show.setFirstAired(new Date(jsonObj.getLong("first_aired") * 1000));
+            show.setYear(jsonObj.getInt("year"));
             show.setNetwork(jsonObj.getString("network"));
             show.setLastUpdated(new Date().getTime());
+            show.setCountry(jsonObj.getString("country"));
+            show.setRuntime(jsonObj.getInt("runtime"));
+            show.setStatus(jsonObj.getString("status"));
+            show.setAirDay(jsonObj.getString("air_day"));
+            show.setAirTime(new SimpleDateFormat("h:mma").parse(jsonObj.getString("air_time")).getTime());
+            show.setCover(jsonObj.getString("poster"));
             List<String> genres = new ArrayList<String>();
             JSONArray jsonArr = jsonObj.getJSONArray("genres");
             for (int i = 0; i < jsonArr.length(); i++) {

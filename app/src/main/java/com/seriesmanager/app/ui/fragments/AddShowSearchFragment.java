@@ -148,7 +148,7 @@ public class AddShowSearchFragment extends ListFragment implements LoaderManager
         Log.w("Fragment", "onLoaderReset");
     }
 
-    public class SemiShowAdapter extends ArrayAdapter<ShowSummary> {
+    public static class SemiShowAdapter extends ArrayAdapter<ShowSummary> {
         private final Context context;
         private final List<ShowSummary> values;
 

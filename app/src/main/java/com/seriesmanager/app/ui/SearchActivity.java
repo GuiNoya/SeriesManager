@@ -17,8 +17,8 @@ import android.widget.TextView;
 import com.seriesmanager.app.Comm;
 import com.seriesmanager.app.R;
 import com.seriesmanager.app.entities.Show;
-import com.seriesmanager.app.fillers.TestContent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SearchActivity extends ActionBarActivity {
@@ -31,7 +31,8 @@ public class SearchActivity extends ActionBarActivity {
         setContentView(R.layout.activity_search);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         list = (ListView) findViewById(R.id.list_search);
-        list.setAdapter(new SearchAdapter(this, TestContent.SEARCH_LIST));
+        //list.setAdapter(new SearchAdapter(this, TestContent.SEARCH_LIST));
+        list.setAdapter(new SearchAdapter(this, new ArrayList<Show>()));
     }
 
 

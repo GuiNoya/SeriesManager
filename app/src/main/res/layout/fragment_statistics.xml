@@ -168,7 +168,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginLeft="40dp"
                 android:clickable="false"
-                android:text="Total"
+                android:text="All"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textColor="#a4520f" />
 

@@ -17,6 +17,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.seriesmanager.app.Comm;
 import com.seriesmanager.app.R;
@@ -188,15 +189,33 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     private void refreshFragments() {
         FragmentManager fm = getSupportFragmentManager();
+        Log.w("REFRESH", "overdue");
         Fragment frg = fm.findFragmentByTag("overdue");
         if (frg != null)
             ((ShowOverdueFragment) frg).notifyDataChanged();
-        frg = fm.findFragmentByTag("calendar");
-        if (frg != null)
-            ((CalendarFragment) frg).notifyDataChanged();
+        Log.w("REFRESH", "shows");
         frg = fm.findFragmentByTag("shows");
         if (frg != null)
             ((ShowFragment) frg).notifyDataChanged();
+        Log.w("REFRESH", "statistics");
+        View v = findViewById(R.id.relativeLayout0);
+        if (v != null) {
+            DBHelper dbHelper = new DBHelper(this, null);
+            ((TextView) v.findViewById(R.id.number_overdue_shows)).setText("" + dbHelper.getNumOverdueShows());
+            ((TextView) v.findViewById(R.id.number_onair_shows)).setText("" + dbHelper.getNumOnAirShows());
+            ((TextView) v.findViewById(R.id.number_ended_shows)).setText("" + dbHelper.getNumEndedShows());
+            ((TextView) v.findViewById(R.id.number_total_shows)).setText("" + dbHelper.getNumTotalShows());
+            int watchedEpisode = dbHelper.getNumWatchedEpisodes();
+            int unwatchedEpisode = dbHelper.getNumUnwatchedEpisodes();
+            ((TextView) v.findViewById(R.id.number_watched_episodes)).setText("" + watchedEpisode);
+            ((TextView) v.findViewById(R.id.number_unwatched_episodes)).setText("" + unwatchedEpisode);
+            ((TextView) v.findViewById(R.id.number_total_episodes)).setText("" + (watchedEpisode + unwatchedEpisode));
+        }
+        Log.w("REFRESH", "calendar");
+        frg = fm.findFragmentByTag("calendar");
+        if (frg != null)
+            ((CalendarFragment) frg).notifyDataChanged();
+        Log.w("REFRESH", "finished");
     }
 
     @Override
@@ -317,6 +336,16 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 getSupportFragmentManager().beginTransaction().add(R.id.container_shows, ShowFragment.newInstance("", ""), "shows").commit();
             } else if (getArguments().getInt(ARG_SECTION_NUMBER) == 4) {
                 rootView = inflater.inflate(R.layout.fragment_statistics, container, false);
+                DBHelper dbHelper = new DBHelper(getActivity(), null);
+                ((TextView) rootView.findViewById(R.id.number_overdue_shows)).setText("" + dbHelper.getNumOverdueShows());
+                ((TextView) rootView.findViewById(R.id.number_onair_shows)).setText("" + dbHelper.getNumOnAirShows());
+                ((TextView) rootView.findViewById(R.id.number_ended_shows)).setText("" + dbHelper.getNumEndedShows());
+                ((TextView) rootView.findViewById(R.id.number_total_shows)).setText("" + dbHelper.getNumTotalShows());
+                int watchedEpisode = dbHelper.getNumWatchedEpisodes();
+                int unwatchedEpisode = dbHelper.getNumUnwatchedEpisodes();
+                ((TextView) rootView.findViewById(R.id.number_watched_episodes)).setText("" + watchedEpisode);
+                ((TextView) rootView.findViewById(R.id.number_unwatched_episodes)).setText("" + unwatchedEpisode);
+                ((TextView) rootView.findViewById(R.id.number_total_episodes)).setText("" + (watchedEpisode + unwatchedEpisode));
             }
             return rootView;
         }

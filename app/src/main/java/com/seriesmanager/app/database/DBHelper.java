@@ -20,7 +20,7 @@ import java.util.List;
 public class DBHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "database.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     private static final String TABLE_SHOW = "shows";
     private static final String TABLE_SEASON = "seasons";
@@ -31,13 +31,21 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String COLUMN_OVERVIEW = "overview";
     private static final String COLUMN_NETWORK = "network";
     private static final String COLUMN_FAVORITE = "favorite";
-    private static final String COLUMN_DATE = "date";
+    private static final String COLUMN_YEAR = "year";
+    private static final String COLUMN_STATUS = "status";
+    private static final String COLUMN_COUNTRY = "country";
+    private static final String COLUMN_RUNTIME = "runtime";
+    private static final String COLUMN_AIRDAY = "airday";
+    private static final String COLUMN_AIRTIME = "airtime";
+    private static final String COLUMN_COVER = "cover";
+    private static final String COLUMN_GENRES = "genres";
     private static final String COLUMN_LAST_UPDATED = "last_updated";
     private static final String COLUMN_NEXT_EPISODE = "next_ep";
 
     private static final String COLUMN_NUMBER = "number";
     private static final String COLUMN_ID_FOREIGN = "fid";
 
+    private static final String COLUMN_DATE = "date";
     private static final String COLUMN_WATCHED = "watched";
     private static final String COLUMN_RATING = "rating";
 
@@ -47,28 +55,37 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     @Override
+    public void onOpen(SQLiteDatabase sqLiteDatabase) {
+        super.onOpen(sqLiteDatabase);
+        if (!sqLiteDatabase.isReadOnly()) {
+            sqLiteDatabase.execSQL("PRAGMA foreign_keys = ON;");
+        }
+    }
+
+    @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         String createShowTable = "CREATE TABLE " + TABLE_SHOW + "(" + COLUMN_ID + " INTEGER PRIMARY KEY, "
                 + COLUMN_NAME + " TEXT NOT NULL, " + COLUMN_OVERVIEW + " TEXT, " + COLUMN_NETWORK + " TEXT, "
-                + COLUMN_FAVORITE + " INTEGER, " + COLUMN_DATE + " TEXT," + COLUMN_LAST_UPDATED + " INTEGER, "
-                + COLUMN_NEXT_EPISODE + " INTEGER, FOREIGN KEY(" + COLUMN_NEXT_EPISODE + ") REFERENCES "
-                + TABLE_EPISODE + "(" + COLUMN_ID + "));";
+                + COLUMN_FAVORITE + " INTEGER, " + COLUMN_YEAR + " INTEGER," + COLUMN_STATUS + " TEXT,"
+                + COLUMN_COUNTRY + " TEXT," + COLUMN_RUNTIME + " INTEGER," + COLUMN_AIRDAY + " TEXT,"
+                + COLUMN_AIRTIME + " TIME," + COLUMN_COVER + " BLOB," + COLUMN_GENRES + " TEXT,"
+                + COLUMN_LAST_UPDATED + " INTEGER, " + COLUMN_NEXT_EPISODE + " INTEGER, FOREIGN KEY("
+                + COLUMN_NEXT_EPISODE + ") REFERENCES " + TABLE_EPISODE + "(" + COLUMN_ID + "));";
 
         String createSeasonTable = "CREATE TABLE " + TABLE_SEASON + "(" + COLUMN_ID
                 + " INTEGER PRIMARY KEY AUTOINCREMENT, " + COLUMN_NUMBER + " INTEGER NOT NULL, "
                 + COLUMN_ID_FOREIGN + " INTEGER NOT NULL, FOREIGN KEY(" + COLUMN_ID_FOREIGN
-                + ") REFERENCES " + TABLE_SHOW + "(" + COLUMN_ID + "));";
+                + ") REFERENCES " + TABLE_SHOW + "(" + COLUMN_ID + ") ON DELETE CASCADE);";
 
         String createEpisodeTable = "CREATE TABLE " + TABLE_EPISODE + "(" + COLUMN_ID + " INTEGER PRIMARY KEY, "
                 + COLUMN_NAME + " TEXT NOT NULL, " + COLUMN_NUMBER + " INTEGER NOT NULL, " + COLUMN_OVERVIEW
                 + " TEXT, " + COLUMN_WATCHED + " INTEGER, " + COLUMN_RATING + " INTEGER, " + COLUMN_DATE
                 + " TEXT, " + COLUMN_ID_FOREIGN + " INTEGER NOT NULL,  FOREIGN KEY(" + COLUMN_ID_FOREIGN
-                + ") REFERENCES " + TABLE_SEASON + "(" + COLUMN_ID + "));";
+                + ") REFERENCES " + TABLE_SEASON + "(" + COLUMN_ID + ") ON DELETE CASCADE);";
 
         sqLiteDatabase.execSQL(createShowTable);
         sqLiteDatabase.execSQL(createSeasonTable);
         sqLiteDatabase.execSQL(createEpisodeTable);
-
     }
 
     @Override
@@ -89,7 +106,14 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COLUMN_OVERVIEW, show.getSummary());
         values.put(COLUMN_NETWORK, show.getNetwork());
         values.put(COLUMN_FAVORITE, show.isFavorite() ? 1 : 0);
-        values.put(COLUMN_DATE, new SimpleDateFormat("yyyy-MM-dd").format(show.getFirstAired()));
+        values.put(COLUMN_YEAR, show.getYear());
+        values.put(COLUMN_STATUS, show.getStatus());
+        values.put(COLUMN_COUNTRY, show.getCountry());
+        values.put(COLUMN_RUNTIME, show.getRuntime());
+        values.put(COLUMN_AIRDAY, show.getAirDay());
+        values.put(COLUMN_AIRTIME, new SimpleDateFormat("h:mm a").format(show.getAirTime()));
+        values.put(COLUMN_COVER, show.getCoverInByteArray());
+        values.put(COLUMN_GENRES, show.getGenresPlainText());
         values.put(COLUMN_LAST_UPDATED, show.getLastUpdated());
 
         SQLiteDatabase db = getWritableDatabase();
@@ -141,7 +165,6 @@ public class DBHelper extends SQLiteOpenHelper {
                 persistEpisode(ep);
             }
         }
-
         updateNextShowEpisode(show.getId());
     }
 
@@ -167,12 +190,19 @@ public class DBHelper extends SQLiteOpenHelper {
             show.setSummary(cursor.getString(2));
             show.setNetwork(cursor.getString(3));
             show.setFavorite(cursor.getInt(4) == 1);
+            show.setYear(cursor.getInt(5));
+            show.setStatus(cursor.getString(6));
+            show.setCountry(cursor.getString(7));
+            show.setRuntime(cursor.getInt(8));
+            show.setAirDay(cursor.getString(9));
             try {
-                show.setFirstAired(new SimpleDateFormat("yyyy-MM-dd").parse(cursor.getString(5)));
+                show.setAirTime(new SimpleDateFormat("h:mm a").parse(cursor.getString(10)).getTime());
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            show.setLastUpdated(cursor.getLong(6));
+            show.setCover(cursor.getBlob(11));
+            show.setGenres(cursor.getString(12));
+            show.setLastUpdated(cursor.getLong(13));
         }
 
         db.close();
@@ -258,7 +288,6 @@ public class DBHelper extends SQLiteOpenHelper {
                 updateOrPersistEpisode(ep);
             }
         }
-
         updateNextShowEpisode(show.getId());
     }
 
@@ -270,8 +299,15 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COLUMN_OVERVIEW, show.getSummary());
         values.put(COLUMN_NETWORK, show.getNetwork());
         values.put(COLUMN_FAVORITE, show.isFavorite() ? 1 : 0);
+        values.put(COLUMN_YEAR, show.getYear());
+        values.put(COLUMN_STATUS, show.getStatus());
+        values.put(COLUMN_COUNTRY, show.getCountry());
+        values.put(COLUMN_RUNTIME, show.getRuntime());
+        values.put(COLUMN_AIRDAY, show.getAirDay());
+        values.put(COLUMN_AIRTIME, new SimpleDateFormat("h:mm a").format(show.getAirTime()));
+        values.put(COLUMN_COVER, show.getCoverInByteArray());
+        values.put(COLUMN_GENRES, show.getGenresPlainText());
         values.put(COLUMN_LAST_UPDATED, show.getLastUpdated());
-        values.put(COLUMN_DATE, new SimpleDateFormat("yyyy-MM-dd").format(show.getFirstAired()));
 
         SQLiteDatabase db = getWritableDatabase();
         db.update(TABLE_SHOW, values, COLUMN_ID + " = " + show.getId(), null);
@@ -505,4 +541,154 @@ public class DBHelper extends SQLiteOpenHelper {
         return id;
     }
 
+    public List<Show> getFavoriteShows() {
+        List<Show> lista = new ArrayList<Show>();
+        String query = "SELECT " + COLUMN_ID + " FROM " + TABLE_SHOW + " WHERE " + COLUMN_FAVORITE + " = 1";
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                Show show = loadShow(cursor.getInt(0));
+                lista.add(show);
+                cursor.moveToNext();
+            }
+        }
+
+        db.close();
+        return lista;
+    }
+
+    public int getNumTotalShows() {
+        String query = "SELECT count(*) FROM " + TABLE_SHOW;
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        cursor.moveToFirst();
+        int value = cursor.getInt(0);
+
+        db.close();
+
+        return value;
+    }
+
+    public List<Show> getEndedShows() {
+        List<Show> lista = new ArrayList<Show>();
+        String query = "SELECT " + COLUMN_ID + " FROM " + TABLE_SHOW + " WHERE " + COLUMN_STATUS + " = 'Ended'";
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                Show show = loadShow(cursor.getInt(0));
+                lista.add(show);
+                cursor.moveToNext();
+            }
+        }
+
+        db.close();
+        return lista;
+    }
+
+    public int getNumEndedShows() {
+        String query = "SELECT count(*) FROM " + TABLE_SHOW + " WHERE " + COLUMN_STATUS + " = 'Ended'";
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        cursor.moveToFirst();
+        int value = cursor.getInt(0);
+
+        db.close();
+
+        return value;
+    }
+
+    public List<Show> getOnAirShows() {
+        List<Show> lista = new ArrayList<Show>();
+        String query = "SELECT " + COLUMN_ID + " FROM " + TABLE_SHOW + " WHERE " + COLUMN_STATUS + " = 'Continuing'";
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                Show show = loadShow(cursor.getInt(0));
+                lista.add(show);
+                cursor.moveToNext();
+            }
+        }
+
+        db.close();
+        return lista;
+    }
+
+    public int getNumOnAirShows() {
+        String query = "SELECT count(*) FROM " + TABLE_SHOW + " WHERE " + COLUMN_STATUS + " = 'Continuing'";
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        cursor.moveToFirst();
+        int value = cursor.getInt(0);
+
+        db.close();
+
+        return value;
+    }
+
+    public int getNumOverdueShows() {
+        String query = "SELECT COUNT(DISTINCT sh." + COLUMN_ID + ") FROM " + TABLE_SHOW + " sh, "
+                + TABLE_EPISODE + " e, " + TABLE_SEASON + " se" + " WHERE e." + COLUMN_WATCHED
+                + "=0 and e." + COLUMN_DATE + "<date('now') and e." + COLUMN_ID_FOREIGN + "=se."
+                + COLUMN_ID + " and se." + COLUMN_ID_FOREIGN + "=sh." + COLUMN_ID + " GROUP BY sh."
+                + COLUMN_ID;
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        int value = 0;
+        cursor.moveToFirst();
+        value = cursor.getInt(0);
+        db.close();
+
+        return value;
+    }
+
+    public int getNumWatchedEpisodes() {
+        String query = "SELECT count(*) FROM " + TABLE_EPISODE + " WHERE " + COLUMN_WATCHED + " = 1";
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        cursor.moveToFirst();
+        int value = cursor.getInt(0);
+
+        db.close();
+
+        return value;
+    }
+
+    public int getNumUnwatchedEpisodes() {
+        String query = "SELECT count(*) FROM " + TABLE_EPISODE + " WHERE " + COLUMN_WATCHED + " = 0";
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        cursor.moveToFirst();
+        int value = cursor.getInt(0);
+
+        db.close();
+
+        return value;
+    }
+
+    public void deleteShow(Show show) {
+        SQLiteDatabase db = getReadableDatabase();
+        db.delete(TABLE_SHOW, COLUMN_ID + " = " + Integer.toString(show.getId()), null);
+        db.close();
+    }
 }

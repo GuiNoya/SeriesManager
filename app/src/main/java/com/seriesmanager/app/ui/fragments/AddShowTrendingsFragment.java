@@ -210,19 +210,19 @@ public class AddShowTrendingsFragment extends ListFragment implements LoaderMana
                     String seasonEpisode = new DBHelper(context, null).getNextShowEpisode(show.getId()).toString();
                     Notification.newNotification(context, show.getId(), show.getName(), seasonEpisode, date);
                     ((OnShowListInteractionListener) Comm.mainContext).onShowListInteraction();
-                    getActivity().runOnUiThread(new Runnable() {
+                    /*getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(getContext(), show.getName() + " added", Toast.LENGTH_SHORT).show();
                         }
-                    });
+                    });*/
                 } catch (Exception e) {
-                    getActivity().runOnUiThread(new Runnable() {
+                    /*getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             Toast.makeText(context, "Couldn't add the show", Toast.LENGTH_SHORT).show();
                         }
-                    });
+                    });*/
                 }
                 return null;
             }
