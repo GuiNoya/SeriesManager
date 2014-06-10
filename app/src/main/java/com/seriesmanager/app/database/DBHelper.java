@@ -566,8 +566,9 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
 
-        cursor.moveToFirst();
-        int value = cursor.getInt(0);
+        int value = 0;
+        if (cursor.moveToFirst())
+            value = cursor.getInt(0);
 
         db.close();
 
@@ -599,8 +600,9 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
 
-        cursor.moveToFirst();
-        int value = cursor.getInt(0);
+        int value = 0;
+        if (cursor.moveToFirst())
+            value = cursor.getInt(0);
 
         db.close();
 
@@ -632,8 +634,9 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
 
-        cursor.moveToFirst();
-        int value = cursor.getInt(0);
+        int value = 0;
+        if (cursor.moveToFirst())
+            value = cursor.getInt(0);
 
         db.close();
 
@@ -651,8 +654,8 @@ public class DBHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query, null);
 
         int value = 0;
-        cursor.moveToFirst();
-        value = cursor.getInt(0);
+        if (cursor.moveToFirst())
+            value = cursor.getInt(0);
         db.close();
 
         return value;
@@ -664,8 +667,9 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
 
-        cursor.moveToFirst();
-        int value = cursor.getInt(0);
+        int value = 0;
+        if (cursor.moveToFirst())
+            value = cursor.getInt(0);
 
         db.close();
 
@@ -678,8 +682,9 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
 
-        cursor.moveToFirst();
-        int value = cursor.getInt(0);
+        int value = 0;
+        if (cursor.moveToFirst())
+            value = cursor.getInt(0);
 
         db.close();
 

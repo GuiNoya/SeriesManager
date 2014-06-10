@@ -17,10 +17,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import com.seriesmanager.app.Comm;
 import com.seriesmanager.app.R;
+import com.seriesmanager.app.adapters.CalendarAdapter;
+import com.seriesmanager.app.adapters.OverdueAdapter;
+import com.seriesmanager.app.adapters.ShowListAdapter;
 import com.seriesmanager.app.database.DBHelper;
 import com.seriesmanager.app.entities.Episode;
 import com.seriesmanager.app.entities.Season;
@@ -189,33 +193,66 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     private void refreshFragments() {
         FragmentManager fm = getSupportFragmentManager();
-        Log.w("REFRESH", "overdue");
-        Fragment frg = fm.findFragmentByTag("overdue");
-        if (frg != null)
-            ((ShowOverdueFragment) frg).notifyDataChanged();
-        Log.w("REFRESH", "shows");
-        frg = fm.findFragmentByTag("shows");
-        if (frg != null)
-            ((ShowFragment) frg).notifyDataChanged();
-        Log.w("REFRESH", "statistics");
-        View v = findViewById(R.id.relativeLayout0);
-        if (v != null) {
-            DBHelper dbHelper = new DBHelper(this, null);
-            ((TextView) v.findViewById(R.id.number_overdue_shows)).setText("" + dbHelper.getNumOverdueShows());
-            ((TextView) v.findViewById(R.id.number_onair_shows)).setText("" + dbHelper.getNumOnAirShows());
-            ((TextView) v.findViewById(R.id.number_ended_shows)).setText("" + dbHelper.getNumEndedShows());
-            ((TextView) v.findViewById(R.id.number_total_shows)).setText("" + dbHelper.getNumTotalShows());
-            int watchedEpisode = dbHelper.getNumWatchedEpisodes();
-            int unwatchedEpisode = dbHelper.getNumUnwatchedEpisodes();
-            ((TextView) v.findViewById(R.id.number_watched_episodes)).setText("" + watchedEpisode);
-            ((TextView) v.findViewById(R.id.number_unwatched_episodes)).setText("" + unwatchedEpisode);
-            ((TextView) v.findViewById(R.id.number_total_episodes)).setText("" + (watchedEpisode + unwatchedEpisode));
+        final ShowOverdueFragment frg1 = (ShowOverdueFragment) fm.findFragmentByTag("overdue");
+        if (frg1 != null) {
+            final OverdueAdapter adapter = new OverdueAdapter(this, new DBHelper(this, null).loadOverdueShows());
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    frg1.setListAdapter(adapter);
+                }
+            });
         }
-        Log.w("REFRESH", "calendar");
-        frg = fm.findFragmentByTag("calendar");
-        if (frg != null)
-            ((CalendarFragment) frg).notifyDataChanged();
-        Log.w("REFRESH", "finished");
+        final CalendarFragment frg2 = (CalendarFragment) fm.findFragmentByTag("calendar");
+        if (frg2 != null) {
+            final ExpandableListView lv = (ExpandableListView) findViewById(R.id.container_calendar).findViewById(android.R.id.list);
+
+            final List<CalendarAdapter.ParentGroup> list = new DBHelper(this, null).loadCalendarShows();
+            final CalendarAdapter adapter = new CalendarAdapter(this, list);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    lv.setAdapter(adapter);
+                    for (int i = 0; i < list.size(); i++) {
+                        if (list.get(i).getArrayChildren().size() == 0) {
+                            list.remove(i);
+                            i--;
+                        } else if (list.get(i).getTitle().equals("Today")) {
+                            lv.expandGroup(i);
+                        }
+                    }
+                }
+            });
+        }
+        final ShowFragment frg3 = (ShowFragment) fm.findFragmentByTag("shows");
+        if (frg3 != null) {
+            Comm.showsList = new DBHelper(this, null).loadShowsAll();
+            final ShowListAdapter adapter = new ShowListAdapter(this, Comm.showsList);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    frg3.setListAdapter(adapter);
+                }
+            });
+        }
+        final View v = findViewById(R.id.relativeLayout0);
+        if (v != null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    DBHelper dbHelper = new DBHelper(getApplication(), null);
+                    ((TextView) v.findViewById(R.id.number_overdue_shows)).setText("" + dbHelper.getNumOverdueShows());
+                    ((TextView) v.findViewById(R.id.number_onair_shows)).setText("" + dbHelper.getNumOnAirShows());
+                    ((TextView) v.findViewById(R.id.number_ended_shows)).setText("" + dbHelper.getNumEndedShows());
+                    ((TextView) v.findViewById(R.id.number_total_shows)).setText("" + dbHelper.getNumTotalShows());
+                    int watchedEpisode = dbHelper.getNumWatchedEpisodes();
+                    int unwatchedEpisode = dbHelper.getNumUnwatchedEpisodes();
+                    ((TextView) v.findViewById(R.id.number_watched_episodes)).setText("" + watchedEpisode);
+                    ((TextView) v.findViewById(R.id.number_unwatched_episodes)).setText("" + unwatchedEpisode);
+                    ((TextView) v.findViewById(R.id.number_total_episodes)).setText("" + (watchedEpisode + unwatchedEpisode));
+                }
+            });
+        }
     }
 
     @Override
