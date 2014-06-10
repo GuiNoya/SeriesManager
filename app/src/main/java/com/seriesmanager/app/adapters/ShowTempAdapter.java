@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckBox;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.seriesmanager.app.Comm;
@@ -17,7 +16,6 @@ import com.seriesmanager.app.database.DBHelper;
 import com.seriesmanager.app.entities.Episode;
 import com.seriesmanager.app.entities.Season;
 import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
-import com.seriesmanager.app.ui.anim.ExpandAnimation;
 import com.seriesmanager.app.ui.dialogs.EpisodeRatingDialog;
 
 import java.text.SimpleDateFormat;
@@ -48,6 +46,10 @@ public class ShowTempAdapter extends BaseExpandableListAdapter {
     @Override
     public Object getGroup(int i) {
         return mParent.get(i).getTitle();
+    }
+
+    public int getGroupSeasonNumber(int i) {
+        return mParent.get(i).getSeasonNumber();
     }
 
     @Override
@@ -129,16 +131,16 @@ public class ShowTempAdapter extends BaseExpandableListAdapter {
         });
 
         View moreInfo = view.findViewById(R.id.more_info);
-        ((RelativeLayout.LayoutParams) moreInfo.getLayoutParams()).bottomMargin = -50;
+        //((RelativeLayout.LayoutParams) moreInfo.getLayoutParams()).bottomMargin = -50;
         moreInfo.setVisibility(View.GONE);
-        view.setOnClickListener(new View.OnClickListener() {
+        /*view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 View moreInfo = view.findViewById(R.id.more_info);
                 ExpandAnimation anim = new ExpandAnimation(moreInfo, 1000); // Not working as planned
                 moreInfo.startAnimation(anim);
             }
-        });
+        });*/
         /*view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

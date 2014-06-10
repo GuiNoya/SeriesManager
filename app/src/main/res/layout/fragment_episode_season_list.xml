@@ -26,7 +26,8 @@
         android:layout_alignBottom="@+id/name"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_alignTop="@+id/name" />
+        android:layout_alignTop="@+id/name"
+        android:focusable="false" />
 
     <RelativeLayout
         android:id="@+id/more_info"

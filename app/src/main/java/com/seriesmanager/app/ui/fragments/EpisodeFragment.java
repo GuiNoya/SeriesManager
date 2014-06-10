@@ -23,6 +23,7 @@ import com.seriesmanager.app.entities.Episode;
 import com.seriesmanager.app.entities.Season;
 import com.seriesmanager.app.entities.Show;
 import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
+import com.seriesmanager.app.ui.anim.ExpandAnimation;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -66,7 +67,12 @@ public class EpisodeFragment extends ListFragment {
         List<ShowTempAdapter.ParentGroup> list = new ArrayList<ShowTempAdapter.ParentGroup>();
         Map<Integer, Season> seasons = Comm.actualShow.getSeasons();
         for (int i : seasons.keySet()) {
-            ShowTempAdapter.ParentGroup pai = new ShowTempAdapter.ParentGroup("Season " + i);
+            ShowTempAdapter.ParentGroup pai;
+            if (i == 0) {
+                pai = new ShowTempAdapter.ParentGroup("Specials");
+            } else {
+                pai = new ShowTempAdapter.ParentGroup("Season " + i);
+            }
             pai.setSeasonNumber(i);
             list.add(pai);
             Map<Integer, Episode> hm = seasons.get(i).getEpisodes();
@@ -76,6 +82,16 @@ public class EpisodeFragment extends ListFragment {
                 al.add(hm.get(j));
             }
         }
+
+        lv.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i2, long l) {
+                View moreInfo = view.findViewById(R.id.more_info);
+                ExpandAnimation anim = new ExpandAnimation(moreInfo, 1000); // Not working as planned
+                moreInfo.startAnimation(anim);
+                return true;
+            }
+        });
 
         lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -87,27 +103,33 @@ public class EpisodeFragment extends ListFragment {
                     builder.setItems(options, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int which) {
+                            long p = lv.getExpandableListPosition(pos);
+                            int position = ExpandableListView.getPackedPositionGroup(p);
                             if (which == 0) {
                                 shareSeason(Comm.actualShow.getName(),
-                                        ((Season) lv.getItemAtPosition(pos)).getSeasonNumber());
+                                        mAdapter.getGroupSeasonNumber(position));
                             } else if (which == 1) {
-                                showMarkSeasonWatchedDialog(pos);
+                                showMarkSeasonWatchedDialog(position);
                             }
                         }
                     });
-                    showMarkSeasonWatchedDialog(pos);
+                    builder.show();
                     return true;
-                } else if (ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_GROUP) {
+                } else if (ExpandableListView.getPackedPositionType(id) == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
                     CharSequence[] options = new CharSequence[]{"Share episode"};
                     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setTitle("Select option");
                     builder.setItems(options, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            long p = lv.getExpandableListPosition(pos);
+                            int positionGroup = ExpandableListView.getPackedPositionGroup(p);
+                            int positionEpisode = ExpandableListView.getPackedPositionChild(p);
                             if (which == 0) {
+                                Episode ep = (Episode) mAdapter.getChild(positionGroup, positionEpisode);
                                 shareEpisode(Comm.actualShow.getName(),
-                                        ((Episode) lv.getItemAtPosition(pos)).getSeason().getSeasonNumber(),
-                                        ((Episode) lv.getItemAtPosition(pos)).getEpisodeNumber());
+                                        mAdapter.getGroupSeasonNumber(positionGroup),
+                                        ep.getEpisodeNumber());
                             }
                         }
                     });
@@ -120,16 +142,17 @@ public class EpisodeFragment extends ListFragment {
 
         lv.setAdapter(new ShowTempAdapter(getActivity(), list));
         //setListAdapter(new ShowTempAdapter(getActivity(), list));
-        if (Comm.actualSeason != null) {
-            lv.expandGroup(Comm.actualSeason.getSeasonNumber() - 1);
-            if (Comm.actualEpisode != null) {
-                //lv.getExpandableListAdapter().get
-                //lv.setSelection(Comm.actualEpisode.getEpisodeNumber());
-                Log.w("TODO", "make focus on expanded episode");
-                //lv.setSelectedChild(Comm.actualSeason.getSeasonNumber()-1, Comm.actualEpisode.getEpisodeNumber()-1, true);
+        Bundle b = getActivity().getIntent().getExtras();
+        if (b != null) {
+            Integer i = (Integer) b.get("season");
+            Integer j = (Integer) b.get("episode");
+            if ((i != null) && (j != null)) {
+                lv.expandGroup(i, false);
+                lv.smoothScrollToPosition(i * 100 + j * 20);
             }
         }
-        ShowTempAdapter adapter = ((ShowTempAdapter) lv.getExpandableListAdapter());
+
+        mAdapter = ((ShowTempAdapter) lv.getExpandableListAdapter());
     }
 
     private void showMarkSeasonWatchedDialog(final int pos) {

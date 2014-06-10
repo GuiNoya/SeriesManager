@@ -111,6 +111,8 @@ public class CalendarAdapter extends BaseExpandableListAdapter {
                 Intent intent = new Intent(Comm.mainContext, ShowActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.putExtra("show", (int) ep.getShowId());
+                intent.putExtra("season", ep.getSeasonNumber());
+                intent.putExtra("episode", ep.getEpisodeNumber());
                 Comm.mainContext.startActivity(intent);
             }
         });

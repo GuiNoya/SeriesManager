@@ -70,7 +70,8 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
             );
         }
 
-        if (Comm.actualSeason != null) {
+        Bundle b = getIntent().getExtras();
+        if (b != null && ((Integer) b.get("season")) != null) {
             mViewPager.setCurrentItem(1);
         }
     }
