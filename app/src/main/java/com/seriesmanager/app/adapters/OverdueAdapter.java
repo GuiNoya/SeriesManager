@@ -41,6 +41,7 @@ public class OverdueAdapter extends ArrayAdapter<Show> {
         ((TextView) rowView.findViewById(R.id.text_name_show)).setText(sh.getName());
         ((ImageView) rowView.findViewById(R.id.image_cover)).setImageResource(R.drawable.ic_launcher);
         ((TextView) rowView.findViewById(R.id.text_number_overdue)).setText(sh.getNumberOverdue() + " episodes to watch");
+        ((ImageView) rowView.findViewById(R.id.image_cover)).setImageBitmap(sh.getCover());
 
         return rowView;
     }

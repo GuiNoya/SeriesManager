@@ -40,7 +40,7 @@ public class ShowListAdapter extends ArrayAdapter<Show> {
         View rowView = inflater.inflate(R.layout.fragment_show_list, parent, false);
         final Show sh = values.get(position);
         ((TextView) rowView.findViewById(R.id.text_name_show)).setText(sh.getName());
-        ((ImageView) rowView.findViewById(R.id.image_cover)).setImageResource(R.drawable.ic_launcher);
+        ((ImageView) rowView.findViewById(R.id.image_cover)).setImageBitmap(sh.getCover());
         if (sh.isFavorite()) {
             ((ImageView) rowView.findViewById(R.id.image_favorite)).setImageResource(android.R.drawable.btn_star_big_on);
         } else {

@@ -691,9 +691,9 @@ public class DBHelper extends SQLiteOpenHelper {
         return value;
     }
 
-    public void deleteShow(Show show) {
+    public void deleteShow(int showId) {
         SQLiteDatabase db = getReadableDatabase();
-        db.delete(TABLE_SHOW, COLUMN_ID + " = " + Integer.toString(show.getId()), null);
+        db.delete(TABLE_SHOW, COLUMN_ID + " = " + Integer.toString(showId), null);
         db.close();
     }
 }

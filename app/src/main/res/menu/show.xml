@@ -14,4 +14,9 @@
         android:orderInCategory="101"
         android:title="@string/action_share_show"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_remove"
+        android:orderInCategory="102"
+        android:showAsAction="never"
+        android:title="Delete Show" />
 </menu>

@@ -175,6 +175,7 @@ public class AddShowSearchFragment extends ListFragment implements LoaderManager
             final ShowSummary sh = values.get(position);
             ((TextView) rowView.findViewById(R.id.text_start_name)).setText(sh.getName());
             ((ImageView) rowView.findViewById(R.id.image_cover)).setImageResource(R.drawable.ic_launcher);
+            //TODO: image
             ((TextView) rowView.findViewById(R.id.text_start_summary)).setText(sh.getSummary());
             final ImageView img = ((ImageView) rowView.findViewById(R.id.image_add));
             img.setImageResource(R.drawable.ic_plus);

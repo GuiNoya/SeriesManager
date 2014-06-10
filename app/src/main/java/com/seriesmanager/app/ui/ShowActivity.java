@@ -90,6 +90,11 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
         } else if (id == R.id.action_share_show) {
             shareShow(Comm.actualShow.getName());
             return true;
+        } else if (id == R.id.action_remove) {
+            new DBHelper(this, null).deleteShow(Comm.actualShow.getId());
+            ((MainActivity) Comm.mainContext).onShowListInteraction();
+            onBackPressed();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
