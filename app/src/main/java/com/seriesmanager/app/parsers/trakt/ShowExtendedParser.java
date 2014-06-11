@@ -61,6 +61,9 @@ public class ShowExtendedParser extends AsyncTask<String, Integer, Show> {
             show.setStatus(jsonObj.getString("status"));
             show.setAirDay(jsonObj.getString("air_day"));
             show.setAirTime(new SimpleDateFormat("h:mma").parse(jsonObj.getString("air_time")).getTime());
+            String posterUrl = jsonObj.getString("poster");
+            posterUrl = posterUrl.substring(0, posterUrl.length() - 4) + "-138" + posterUrl.substring(posterUrl.length() - 4);
+            show.setCover(posterUrl);
             show.setCover(jsonObj.getString("poster"));
             List<String> genres = new ArrayList<String>();
             JSONArray jsonArr = jsonObj.getJSONArray("genres");

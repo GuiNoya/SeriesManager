@@ -1,10 +1,18 @@
 package com.seriesmanager.app.entities;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
+import com.seriesmanager.app.network.NetworkGet;
+
+import java.io.ByteArrayOutputStream;
+
 public class ShowSummary {
     int id;
     String name;
     String summary;
     String network;
+    Bitmap cover;
 
     public ShowSummary() {
     }
@@ -45,5 +53,31 @@ public class ShowSummary {
 
     public void setNetwork(String network) {
         this.network = network;
+    }
+
+    public Bitmap getCover() {
+        return cover;
+    }
+
+    public void setCover(byte[] coverArray) {
+        this.cover = BitmapFactory.decodeByteArray(coverArray, 0, coverArray.length);
+    }
+
+    public void setCover(String coverLink) {
+        try {
+            this.cover = BitmapFactory.decodeStream(new NetworkGet(coverLink).get());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setCover(Bitmap cover) {
+        this.cover = cover;
+    }
+
+    public byte[] getCoverInByteArray() {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        this.cover.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+        return bos.toByteArray();
     }
 }

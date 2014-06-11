@@ -162,8 +162,7 @@ public class AddShowTrendingsFragment extends ListFragment implements LoaderMana
             View rowView = inflater.inflate(R.layout.fragment_start_show_list, parent, false);
             final ShowSummary sh = values.get(position);
             ((TextView) rowView.findViewById(R.id.text_start_name)).setText(sh.getName());
-            ((ImageView) rowView.findViewById(R.id.image_cover)).setImageResource(R.drawable.ic_launcher);
-            //TODO: here
+            ((ImageView) rowView.findViewById(R.id.image_cover)).setImageBitmap(sh.getCover());
             ((TextView) rowView.findViewById(R.id.text_start_summary)).setText(sh.getSummary());
             final ImageView img = ((ImageView) rowView.findViewById(R.id.image_add));
             img.setImageResource(R.drawable.ic_plus);

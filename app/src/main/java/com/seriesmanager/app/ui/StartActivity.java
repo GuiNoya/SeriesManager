@@ -140,6 +140,7 @@ public class StartActivity extends ActionBarActivity implements LoaderManager.Lo
             View rowView = inflater.inflate(R.layout.fragment_start_show_list, parent, false);
             final ShowSummary sh = values.get(position);
             ((TextView) rowView.findViewById(R.id.text_start_name)).setText(sh.getName());
+            ((ImageView) rowView.findViewById(R.id.image_cover)).setImageBitmap(sh.getCover());
             ((ImageView) rowView.findViewById(R.id.image_cover)).setImageResource(R.drawable.ic_launcher);
             ((TextView) rowView.findViewById(R.id.text_start_summary)).setText(sh.getSummary());
             final ImageView img = ((ImageView) rowView.findViewById(R.id.image_add));
