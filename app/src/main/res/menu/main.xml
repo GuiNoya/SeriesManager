@@ -11,6 +11,10 @@
     <item
         android:id="@+id/action_add"
         android:icon="@drawable/abc_ic_search"
-        android:title="@string/add_show_title"
+        android:title="@string/action_add_show_title"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/action_filter_favorite"
+        android:title="filter favorite"
+        app:showAsAction="ifRoom" />
 </menu>

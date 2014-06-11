@@ -24,6 +24,10 @@ public class ShowListAdapter extends ArrayAdapter<ShowLite> {
         this.values = values;
     }
 
+    public List<ShowLite> getValues() {
+        return values;
+    }
+
     @Override
     public boolean areAllItemsEnabled() {
         return true;

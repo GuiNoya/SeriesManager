@@ -656,20 +656,6 @@ public class DBHelper extends SQLiteOpenHelper {
         return lista;
     }
 
-    public int getNumTotalShows() {
-        String query = "SELECT count(*) FROM " + TABLE_SHOW;
-
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
-
-        int value = 0;
-        if (cursor.moveToFirst())
-            value = cursor.getInt(0);
-
-        db.close();
-
-        return value;
-    }
 
     public List<ShowLite> getEndedShows() {
         List<ShowLite> lista = new ArrayList<ShowLite>();
@@ -695,21 +681,6 @@ public class DBHelper extends SQLiteOpenHelper {
         return lista;
     }
 
-    public int getNumEndedShows() {
-        String query = "SELECT count(*) FROM " + TABLE_SHOW + " WHERE " + COLUMN_STATUS + " = 'Ended'";
-
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
-
-        int value = 0;
-        if (cursor.moveToFirst())
-            value = cursor.getInt(0);
-
-        db.close();
-
-        return value;
-    }
-
     public List<ShowLite> getOnAirShows() {
         List<ShowLite> lista = new ArrayList<ShowLite>();
         String query = "SELECT " + COLUMN_ID + " FROM " + TABLE_SHOW + " WHERE " + COLUMN_STATUS + " = 'Continuing'";
@@ -732,6 +703,60 @@ public class DBHelper extends SQLiteOpenHelper {
 
         db.close();
         return lista;
+    }
+
+    public List<ShowLite> getFiltersShows(short favorite, short status) {
+        List<ShowLite> lista = new ArrayList<ShowLite>();
+        String query = "SELECT " + COLUMN_ID + " FROM " + TABLE_SHOW + " WHERE " + COLUMN_STATUS + " = 'Continuing'";
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                int showId = cursor.getInt(0);
+                for (ShowLite show : Comm.showsInstances) {
+                    if (show.getId() == showId) {
+                        lista.add(show);
+                        break;
+                    }
+                }
+                cursor.moveToNext();
+            }
+        }
+
+        db.close();
+        return lista;
+    }
+
+    public int getNumTotalShows() {
+        String query = "SELECT count(*) FROM " + TABLE_SHOW;
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        int value = 0;
+        if (cursor.moveToFirst())
+            value = cursor.getInt(0);
+
+        db.close();
+
+        return value;
+    }
+
+    public int getNumEndedShows() {
+        String query = "SELECT count(*) FROM " + TABLE_SHOW + " WHERE " + COLUMN_STATUS + " = 'Ended'";
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        int value = 0;
+        if (cursor.moveToFirst())
+            value = cursor.getInt(0);
+
+        db.close();
+
+        return value;
     }
 
     public int getNumOnAirShows() {

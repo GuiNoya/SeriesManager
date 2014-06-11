@@ -53,7 +53,7 @@ public class ShowFragment extends ListFragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-        mAdapter = new ShowListAdapter(getActivity(), Comm.showsInstances);
+        mAdapter = new ShowListAdapter(getActivity(), Comm.showsFiltered);
         setListAdapter(mAdapter);
     }
 

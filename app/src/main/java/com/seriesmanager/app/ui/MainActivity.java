@@ -50,6 +50,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private ViewPager mViewPager;
     private boolean isNeedingRefresh = false;
     private boolean running;
+    private boolean onlyFavorites = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +62,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         findViewById(R.id.progress_bar_update).setVisibility(View.GONE);
 
         Comm.showsInstances = new DBHelper(this, null).loadShowsAll();
+        Comm.showsFiltered = Comm.showsInstances;
 
         if (Comm.showsInstances.size() == 0) {
             Intent intent = new Intent(this, StartActivity.class);
@@ -135,6 +137,20 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             Intent intent = new Intent(this, AddShowActivity.class);
             startActivity(intent);
             return true;
+        } else if (id == R.id.action_filter_favorite) {
+            onlyFavorites = !onlyFavorites;
+            final ShowFragment frg = (ShowFragment) getSupportFragmentManager().findFragmentByTag("shows");
+            if (frg != null) {
+                if (onlyFavorites) {
+                    Comm.showsFiltered = new DBHelper(this, null).getFavoriteShows();
+                    ShowListAdapter adapter = new ShowListAdapter(this, Comm.showsFiltered);
+                    frg.setListAdapter(adapter);
+                } else {
+                    Comm.showsFiltered = Comm.showsInstances;
+                    ShowListAdapter adapter = new ShowListAdapter(this, Comm.showsInstances);
+                    frg.setListAdapter(adapter);
+                }
+            }
         }
         return super.onOptionsItemSelected(item);
     }
@@ -222,7 +238,14 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         final ShowFragment frg3 = (ShowFragment) fm.findFragmentByTag("shows");
         if (frg3 != null) {
             Comm.showsInstances = new DBHelper(this, null).loadShowsAll();
-            final ShowListAdapter adapter = new ShowListAdapter(this, Comm.showsInstances);
+            final ShowListAdapter adapter;
+            if (onlyFavorites) {
+                Comm.showsFiltered = new DBHelper(this, null).getFavoriteShows();
+                adapter = new ShowListAdapter(this, Comm.showsFiltered);
+            } else {
+                Comm.showsFiltered = Comm.showsInstances;
+                adapter = new ShowListAdapter(this, Comm.showsInstances);
+            }
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
