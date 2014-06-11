@@ -124,6 +124,10 @@ public class Show {
         return cover;
     }
 
+    public void setCover(Bitmap cover) {
+        this.cover = cover;
+    }
+
     public void setCover(byte[] coverArray) {
         cover = BitmapFactory.decodeByteArray(coverArray, 0, coverArray.length);
     }
@@ -143,10 +147,6 @@ public class Show {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public void setCover(Bitmap cover) {
-        this.cover = cover;
     }
 
     public String getSummary() {
@@ -177,15 +177,15 @@ public class Show {
         return genres;
     }
 
-    public void setGenres(List<String> genres) {
-        this.genres = genres;
-    }
-
     public void setGenres(String genres) {
-        StringTokenizer token = new StringTokenizer(genres, "|");
+        StringTokenizer token = new StringTokenizer(genres, " | ");
         while (token.hasMoreTokens()) {
             this.genres.add(token.nextToken());
         }
+    }
+
+    public void setGenres(List<String> genres) {
+        this.genres = genres;
     }
 
     public boolean isFavorite() {
@@ -256,10 +256,6 @@ public class Show {
         return airTime;
     }
 
-    public void setAirTime(Date airTime) {
-        this.airTime = airTime;
-    }
-
     //Getters and Setters that need some kind of conversion between types
     public void setAirTime(long airTime) {
         Date date = new Date(airTime);
@@ -271,12 +267,21 @@ public class Show {
         }
     }
 
+    public void setAirTime(Date airTime) {
+        this.airTime = airTime;
+    }
+
     public String getGenresPlainText() {
-        String genre = "";
+        StringBuilder sb = new StringBuilder();
         for (String g : genres) {
-            genre += g + "|";
+            sb.append(g);
+            sb.append("|");
         }
-        return genre;
+        try {
+            sb.delete(sb.length() - 1, sb.length() - 1);
+        } catch (StringIndexOutOfBoundsException e) {
+        }
+        return sb.toString();
     }
 
     public byte[] getCoverInByteArray() {

@@ -30,6 +30,7 @@ import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
 import com.seriesmanager.app.interfaces.OnShowInteractionListener;
 import com.seriesmanager.app.ui.fragments.EpisodeFragment;
 
+import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 
@@ -229,8 +230,15 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
                 });
                 ((TextView) rootView.findViewById(R.id.text_name)).setText(show.getName());
                 ((TextView) rootView.findViewById(R.id.text_summary)).setText(show.getSummary());
-                ((TextView) rootView.findViewById(R.id.text_data)).setText(Integer.toString(show.getYear()));
-                ((TextView) rootView.findViewById(R.id.text_emissora)).setText(show.getNetwork());
+                String text_essential = Integer.toString(show.getYear()) + "  |  "
+                        + Integer.toString(show.getRuntime()) + " min  |  " + show.getStatus();
+                ((TextView) rootView.findViewById(R.id.text_year_runtime_status)).setText(text_essential);
+                String genresString = show.getGenresPlainText().replace("|", ", ");
+                ((TextView) rootView.findViewById(R.id.text_genres)).setText(genresString);
+                ((TextView) rootView.findViewById(R.id.text_country)).setText(show.getCountry());
+                SimpleDateFormat time = new SimpleDateFormat("h:mma");
+                String text_exhibit = show.getNetwork() + " | " + show.getAirDay() + " " + time.format(show.getAirTime());
+                ((TextView) rootView.findViewById(R.id.text_emissora_day_time)).setText(text_exhibit);
             } else if (getArguments().getInt(ARG_SECTION_NUMBER) == 2) {
                 rootView = inflater.inflate(R.layout.fragment_list_show_seasons, container, false);
                 getSupportFragmentManager().beginTransaction().add(R.id.container_seasons, EpisodeFragment.newInstance("", "")).commit();

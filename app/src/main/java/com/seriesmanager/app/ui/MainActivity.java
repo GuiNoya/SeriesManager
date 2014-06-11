@@ -147,6 +147,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         } else if (id == R.id.action_filter) {
             return true;
         } else if (id == R.id.action_filter_favorite) {
+            filterView.setIcon(R.drawable.ic_action_filter_active);
             filterFlag = 1;
             final ShowFragment frg = (ShowFragment) getSupportFragmentManager().findFragmentByTag("shows");
             if (frg != null) {
@@ -156,6 +157,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             }
             return true;
         } else if (id == R.id.action_filter_on_air) {
+            filterView.setIcon(R.drawable.ic_action_filter_active);
             filterFlag = 2;
             final ShowFragment frg = (ShowFragment) getSupportFragmentManager().findFragmentByTag("shows");
             if (frg != null) {
@@ -165,6 +167,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             }
             return true;
         } else if (id == R.id.action_filter_ended) {
+            filterView.setIcon(R.drawable.ic_action_filter_active);
             filterFlag = 3;
             final ShowFragment frg = (ShowFragment) getSupportFragmentManager().findFragmentByTag("shows");
             if (frg != null) {
@@ -174,6 +177,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             }
             return true;
         } else if (id == R.id.action_filter_all) {
+            filterView.setIcon(R.drawable.ic_action_filter_default);
             filterFlag = 0;
             final ShowFragment frg = (ShowFragment) getSupportFragmentManager().findFragmentByTag("shows");
             if (frg != null) {
