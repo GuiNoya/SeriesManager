@@ -38,16 +38,16 @@ public class UpdateShowsLoader extends AsyncTaskLoader<List<Show>> {
                         Integer i = dbHelper.getNextShowEpisode(s.getId());
                         if (i != null) {
                             dbHelper.updateCompleteShow(s);
-                            //TODO: get real time of the episode and the seasonEpisode string
-                            Date date = new Date(new Date().getTime() + 10000);
-                            String seasonEpisode = dbHelper.getNextShowEpisode(s.getId()).toString();
-                            Notification.newNotification(getContext(), s.getId(), s.getName(), seasonEpisode, date);
+                            Date date = dbHelper.getNextShowEpisodeDate(s.getId());
+                            String seasonEpisode = dbHelper.getNextShowEpisodeSeasonEpisodeString(s.getId());
+                            if (date != null && seasonEpisode != null)
+                                Notification.newNotification(getContext(), s.getId(), s.getName(), seasonEpisode, date);
                         } else {
                             dbHelper.updateCompleteShow(s);
-                            //TODO: get real time of the episode and the seasonEpisode string
-                            Date date = new Date(new Date().getTime() + 10000);
-                            String seasonEpisode = dbHelper.getNextShowEpisode(s.getId()).toString();
-                            Notification.newNotification(getContext(), s.getId(), s.getName(), seasonEpisode, date);
+                            Date date = dbHelper.getNextShowEpisodeDate(s.getId());
+                            String seasonEpisode = dbHelper.getNextShowEpisodeSeasonEpisodeString(s.getId());
+                            if (date != null && seasonEpisode != null)
+                                Notification.newNotification(getContext(), s.getId(), s.getName(), seasonEpisode, date);
                         }
                     }
                 } catch (Exception e) {

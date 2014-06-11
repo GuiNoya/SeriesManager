@@ -79,6 +79,17 @@ public class CalendarAdapter extends BaseExpandableListAdapter {
         return view;
     }
 
+    private String formatSeasonEpisodeNumber(int season, int episode) {
+        String str = "S";
+        if (season < 10)
+            str += "0";
+        str += season + "E";
+        if (episode < 10)
+            str += "0";
+        str += episode;
+        return str;
+    }
+
     @Override
     public View getChildView(int i, int i1, boolean b, View view, ViewGroup viewGroup) {
         if (view == null) {
@@ -88,7 +99,7 @@ public class CalendarAdapter extends BaseExpandableListAdapter {
         final CalendarEpisode ep = mParent.get(i).getArrayChildren().get(i1);
 
         ((TextView) view.findViewById(R.id.text_name)).setText(ep.getShow().getName());
-        String se = "S" + ep.getSeasonNumber() + "E" + ep.getEpisodeNumber();
+        String se = formatSeasonEpisodeNumber(ep.getSeasonNumber(), ep.getEpisodeNumber());
         ((TextView) view.findViewById(R.id.text_episode)).setText(se);
         String[] datas = ep.getAirDate().toString().split(" ");
         String data = datas[0] + " " + datas[2] + " " + datas[1];
@@ -102,7 +113,6 @@ public class CalendarAdapter extends BaseExpandableListAdapter {
                 ep.setWatched(cb.isChecked());
                 new DBHelper(context, null).updateEpisodeWatched(ep.getId(), ep.isWatched());
                 ((OnEpisodeInteractionListener) context).onEpisodeInteraction(new Episode());
-                //TODO: fix interactions
             }
         });
 
@@ -117,22 +127,6 @@ public class CalendarAdapter extends BaseExpandableListAdapter {
                 Comm.mainContext.startActivity(intent);
             }
         });
-        /*view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new AlertDialog.Builder(context)
-                        .setTitle("Episode Click")
-                        .setMessage(ep.getName() + "\n" + ep.getEpisodeNumber() + "\n" + ep.getAirDate().toString() +
-                                "\nWatched: " + ep.isWatched())
-                        .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                            }
-                        })
-                        .setIcon(android.R.drawable.ic_dialog_info)
-                        .show();
-            }
-        });*/
 
         return view;
     }

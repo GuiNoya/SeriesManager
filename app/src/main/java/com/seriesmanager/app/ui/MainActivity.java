@@ -131,6 +131,10 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.action_add) {
+            Intent intent = new Intent(this, AddShowActivity.class);
+            startActivity(intent);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -141,7 +145,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Map<Long, Long> map = new LinkedHashMap<Long, Long>();
         long now = new Date().getTime();
         for (ShowLite show : Comm.showsInstances) {
-            //TODO: make show status interfere the update
             if (show.getLastUpdated() < now - 86400000) {
                 map.put((long) show.getId(), show.getLastUpdated());
             }
@@ -285,7 +288,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         Log.w("MainActivity", "onFragmentInteraction");
     }
 
-    public void onButtonClick(View vi) {
+    /*public void onButtonClick(View vi) {
         if (vi.getId() == R.id.button_new) {
             Intent intent = new Intent(this, AddShowActivity.class);
             //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -295,7 +298,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         }
-    }
+    }*/
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 

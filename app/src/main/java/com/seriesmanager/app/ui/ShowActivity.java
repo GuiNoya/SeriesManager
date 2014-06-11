@@ -1,5 +1,8 @@
 package com.seriesmanager.app.ui;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -27,7 +30,6 @@ import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
 import com.seriesmanager.app.interfaces.OnShowInteractionListener;
 import com.seriesmanager.app.ui.fragments.EpisodeFragment;
 
-import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 
@@ -42,7 +44,6 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //TODO: Remove this, separate all instances of the show (communication only by ids or numbers)
         Bundle b = getIntent().getExtras();
         if (b != null) {
             show = new DBHelper(this, null).loadCompleteShow(getIntent().getExtras().getInt("show"));
@@ -94,9 +95,22 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
             shareShow(show.getName());
             return true;
         } else if (id == R.id.action_remove) {
-            new DBHelper(this, null).deleteShow(show.getId());
-            ((MainActivity) Comm.mainContext).onShowListInteraction();
-            onBackPressed();
+            final Context context = this;
+            new AlertDialog.Builder(this).setTitle("Delete show")
+                    .setMessage("Are you sure that you want to delete this show?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            new DBHelper(context, null).deleteShow(show.getId());
+                            ((MainActivity) Comm.mainContext).onShowListInteraction();
+                            onBackPressed();
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                        }
+                    }).create().show();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -192,6 +206,8 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
             View rootView = null;
             if (getArguments().getInt(ARG_SECTION_NUMBER) == 1) {
                 rootView = inflater.inflate(R.layout.fragment_show_info, container, false);
+                ImageView cover = (ImageView) rootView.findViewById(R.id.image_cover);
+                cover.setImageBitmap(show.getCover());
                 final ImageView img = (ImageView) rootView.findViewById(R.id.image_plus);
                 if (show.isFavorite()) {
                     img.setImageResource(android.R.drawable.btn_star_big_on);
@@ -207,14 +223,13 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
                         } else {
                             ((ImageView) view).setImageResource(android.R.drawable.btn_star_big_off);
                         }
-                        new DBHelper(getActivity(), null).updateShow(show);
+                        new DBHelper(getActivity(), null).updateFavorite(show.getId(), show.isFavorite());
                         ((OnShowInteractionListener) Comm.mainContext).onShowInteraction(show);
                     }
                 });
                 ((TextView) rootView.findViewById(R.id.text_name)).setText(show.getName());
                 ((TextView) rootView.findViewById(R.id.text_summary)).setText(show.getSummary());
-                SimpleDateFormat ft = new SimpleDateFormat("dd/MM/yyyy");
-                ((TextView) rootView.findViewById(R.id.text_data)).setText(ft.format(show.getYear()));
+                ((TextView) rootView.findViewById(R.id.text_data)).setText(Integer.toString(show.getYear()));
                 ((TextView) rootView.findViewById(R.id.text_emissora)).setText(show.getNetwork());
             } else if (getArguments().getInt(ARG_SECTION_NUMBER) == 2) {
                 rootView = inflater.inflate(R.layout.fragment_list_show_seasons, container, false);

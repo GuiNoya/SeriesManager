@@ -12,7 +12,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginRight="40dp"
+        android:layout_marginRight="60dp"
         android:clickable="false"
         android:paddingStart="10dp"
         android:paddingTop="1dp"

@@ -215,11 +215,12 @@ public class AddShowSearchFragment extends ListFragment implements LoaderManager
                 final Show show;
                 try {
                     show = new ShowExtendedParser(integers[0]).get();
-                    new DBHelper(context, null).persistCompleteShow(show);
-                    //TODO: get real time of the episode and the seasonEpisode string
-                    Date date = new Date(new Date().getTime() + 10000);
-                    String seasonEpisode = new DBHelper(context, null).getNextShowEpisode(show.getId()).toString();
-                    Notification.newNotification(context, show.getId(), show.getName(), seasonEpisode, date);
+                    DBHelper dbHelper = new DBHelper(context, null);
+                    dbHelper.persistCompleteShow(show);
+                    Date date = dbHelper.getNextShowEpisodeDate(show.getId());
+                    String seasonEpisode = dbHelper.getNextShowEpisodeSeasonEpisodeString(show.getId());
+                    if (date != null && seasonEpisode != null)
+                        Notification.newNotification(context, show.getId(), show.getName(), seasonEpisode, date);
                     ((OnShowListInteractionListener) Comm.mainContext).onShowListInteraction();
                     ((Activity) mListener).runOnUiThread(new Runnable() {
                         @Override

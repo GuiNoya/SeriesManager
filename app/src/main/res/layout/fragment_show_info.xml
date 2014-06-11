@@ -22,6 +22,7 @@
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal"
+            android:gravity="center"
             android:text="Name"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textIsSelectable="false"
@@ -69,12 +70,11 @@
                         android:id="@+id/text_data_string"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentLeft="true"
-                        android:layout_alignParentStart="true"
-                        android:layout_alignParentTop="true"
-                        android:layout_marginLeft="10dp"
+                        android:layout_alignLeft="@+id/text_summary"
+                        android:layout_alignStart="@+id/text_summary"
+                        android:layout_below="@+id/text_summary"
                         android:layout_marginTop="10dp"
-                        android:text="Data de Estréia: " />
+                        android:text="Year: " />
 
                     <TextView
                         android:id="@+id/text_emissora_string"
@@ -85,7 +85,7 @@
                         android:layout_marginBottom="10dp"
                         android:layout_marginTop="10dp"
                         android:singleLine="false"
-                        android:text="Emissora: " />
+                        android:text="Network: " />
 
                     <TextView
                         android:id="@+id/text_data"
@@ -104,6 +104,14 @@
                         android:layout_toRightOf="@+id/text_emissora_string"
                         android:paddingLeft="10dp"
                         android:text="New Text" />
+
+                    <TextView
+                        android:id="@+id/text_summary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginTop="10dp"
+                        android:text="New Text" />
                 </RelativeLayout>
 
             </RelativeLayout>
@@ -120,22 +128,19 @@
                     android:id="@+id/image_cover"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentTop="true"
-                    android:layout_marginLeft="15dp"
+                    android:layout_marginLeft="5dp"
                     android:layout_marginTop="15dp"
+                    android:adjustViewBounds="true"
+                    android:maxHeight="260dp"
+                    android:maxWidth="160dp"
+                    android:minHeight="260dp"
+                    android:minWidth="160dp"
                     android:src="@drawable/ic_launcher" />
 
-                <TextView
-                    android:id="@+id/text_summary"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignTop="@+id/image_cover"
-                    android:layout_marginLeft="26dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_toRightOf="@+id/image_cover"
-                    android:text="New Text" />
             </RelativeLayout>
 
         </RelativeLayout>

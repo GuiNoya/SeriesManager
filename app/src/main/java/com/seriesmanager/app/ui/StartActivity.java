@@ -7,8 +7,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -86,14 +84,14 @@ public class StartActivity extends ActionBarActivity implements LoaderManager.Lo
         list.setAdapter(null);
     }
 
-    @Override
+    /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.start, menu);
         return true;
-    }
+    }*/
 
-    @Override
+    /*@Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -103,7 +101,7 @@ public class StartActivity extends ActionBarActivity implements LoaderManager.Lo
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
+    }*/
 
     public void onFinishClick(View vi) {
         finish();
@@ -169,11 +167,13 @@ public class StartActivity extends ActionBarActivity implements LoaderManager.Lo
                 final Show show;
                 try {
                     show = new ShowExtendedParser(integers[0]).get();
-                    new DBHelper(context, null).persistCompleteShow(show);
-                    //TODO: get real time of the episode and the seasonEpisode string
-                    Date date = new Date(new Date().getTime() + 10000);
-                    String seasonEpisode = new DBHelper(context, null).getNextShowEpisode(show.getId()).toString();
-                    Notification.newNotification(context, show.getId(), show.getName(), seasonEpisode, date);
+                    DBHelper dbHelper = new DBHelper(context, null);
+                    dbHelper.persistCompleteShow(show);
+                    //Date date = new Date(new Date().getTime() + 10000);
+                    Date date = dbHelper.getNextShowEpisodeDate(show.getId());
+                    String seasonEpisode = dbHelper.getNextShowEpisodeSeasonEpisodeString(show.getId());
+                    if (date != null && seasonEpisode != null)
+                        Notification.newNotification(context, show.getId(), show.getName(), seasonEpisode, date);
                     ((OnShowListInteractionListener) Comm.mainContext).onShowListInteraction();
                     runOnUiThread(new Runnable() {
                         @Override

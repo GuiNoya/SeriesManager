@@ -15,8 +15,10 @@ import com.seriesmanager.app.entities.Season;
 import com.seriesmanager.app.entities.Show;
 import com.seriesmanager.app.entities.ShowLite;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class DBHelper extends SQLiteOpenHelper {
@@ -556,6 +558,55 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
 
         return id;
+    }
+
+    public Date getNextShowEpisodeDate(int showId) {
+        String query = "SELECT e." + COLUMN_DATE + ", sh." + COLUMN_AIRTIME + " FROM " + TABLE_SHOW + " sh, "
+                + TABLE_EPISODE + " e WHERE sh." + COLUMN_ID + "=" + showId + " AND e." + COLUMN_ID
+                + "=sh." + COLUMN_NEXT_EPISODE;
+
+        Date date1 = null;
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()) {
+            try {
+                date1 = new SimpleDateFormat("yyyy-MM-dd").parse(cursor.getString(0));
+                Date date2 = new SimpleDateFormat("h:mm a").parse(cursor.getString(1));
+                date1.setTime(date1.getTime() + date2.getTime());
+            } catch (ParseException e) {
+                date1 = null;
+                e.printStackTrace();
+            }
+        }
+        db.close();
+
+        return date1;
+    }
+
+    public String getNextShowEpisodeSeasonEpisodeString(int showId) {
+        String query = "SELECT se." + COLUMN_NUMBER + ", e." + COLUMN_NUMBER + " FROM " + TABLE_SHOW
+                + " sh, " + TABLE_SEASON + " se, " + TABLE_EPISODE + " e WHERE sh." + COLUMN_ID
+                + "=" + showId + " AND e." + COLUMN_ID + "=sh." + COLUMN_NEXT_EPISODE + " AND se."
+                + COLUMN_ID + "=e." + COLUMN_ID_FOREIGN;
+
+        String str = "S";
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()) {
+            int n = cursor.getInt(0);
+            if (n < 10)
+                str += "0";
+            str += n;
+            n = cursor.getInt(1);
+            if (n < 10)
+                str += "0";
+            str += n;
+        } else {
+            str = null;
+        }
+        db.close();
+
+        return str;
     }
 
     public Integer updateNextShowEpisode(int showId) {

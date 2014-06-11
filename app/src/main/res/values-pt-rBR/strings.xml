@@ -12,6 +12,7 @@
     <string name="title_show_section2">Temporadas</string>
     <string name="action_settings">Configurações</string>
     <string name="action_share_show">Compartilhar</string>
+    <string name="add_show_title">Adicionar show</string>
     <string name="title_activity_start">SeriesManager: O Começo</string>
     <string name="title_activity_add_show">Adicionar Show</string>
     <string name="search_show_title">Buscar Show</string>
