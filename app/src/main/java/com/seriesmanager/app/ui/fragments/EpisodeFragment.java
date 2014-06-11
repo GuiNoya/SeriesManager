@@ -144,7 +144,7 @@ public class EpisodeFragment extends ListFragment {
             }
         });
 
-        lv.setAdapter(new ShowTempAdapter(getActivity(), list));
+        lv.setAdapter(new ShowTempAdapter(getActivity(), this, list));
         //setListAdapter(new ShowTempAdapter(getActivity(), list));
         Bundle b = getActivity().getIntent().getExtras();
         if (b != null) {
@@ -184,7 +184,7 @@ public class EpisodeFragment extends ListFragment {
                 }).show();
     }
 
-    private void shareEpisode(String showName, int seasonNumber, int episodeNumber) {
+    public void shareEpisode(String showName, int seasonNumber, int episodeNumber) {
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
         String url = Constants.TRAKT_SHOW_URL + showName.trim().toLowerCase().replaceAll(" +", "+")

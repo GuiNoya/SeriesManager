@@ -30,6 +30,7 @@ import com.seriesmanager.app.entities.Episode;
 import com.seriesmanager.app.entities.Season;
 import com.seriesmanager.app.entities.Show;
 import com.seriesmanager.app.entities.ShowLite;
+import com.seriesmanager.app.interfaces.OnCalendarInteractionListener;
 import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
 import com.seriesmanager.app.interfaces.OnShowInteractionListener;
 import com.seriesmanager.app.interfaces.OnShowListInteractionListener;
@@ -44,7 +45,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, LoaderManager.LoaderCallbacks<List<Show>>, OnShowListInteractionListener, OnShowInteractionListener, OnEpisodeInteractionListener, ShowOverdueFragment.OnFragmentInteractionListener {
+public class MainActivity extends ActionBarActivity implements ActionBar.TabListener, LoaderManager.LoaderCallbacks<List<Show>>, OnCalendarInteractionListener, OnShowListInteractionListener, OnShowInteractionListener, OnEpisodeInteractionListener, ShowOverdueFragment.OnFragmentInteractionListener {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
@@ -314,11 +315,67 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
+    private void refreshFragmentsWithoutCalendar() {
+        FragmentManager fm = getSupportFragmentManager();
+        final ShowOverdueFragment frg1 = (ShowOverdueFragment) fm.findFragmentByTag("overdue");
+        if (frg1 != null) {
+            final OverdueAdapter adapter = new OverdueAdapter(this, new DBHelper(this, null).loadOverdueShows());
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    frg1.setListAdapter(adapter);
+                }
+            });
+        }
+        final ShowFragment frg3 = (ShowFragment) fm.findFragmentByTag("shows");
+        if (frg3 != null) {
+            Comm.showsInstances = new DBHelper(this, null).loadShowsAll();
+            filterShows();
+            final ShowListAdapter adapter = new ShowListAdapter(this, Comm.showsFiltered);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    frg3.setListAdapter(adapter);
+                }
+            });
+        }
+        final View v = findViewById(R.id.relativeLayout0);
+        if (v != null) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    DBHelper dbHelper = new DBHelper(getApplication(), null);
+                    ((TextView) v.findViewById(R.id.number_overdue_shows)).setText("" + dbHelper.getNumOverdueShows());
+                    ((TextView) v.findViewById(R.id.number_onair_shows)).setText("" + dbHelper.getNumOnAirShows());
+                    ((TextView) v.findViewById(R.id.number_ended_shows)).setText("" + dbHelper.getNumEndedShows());
+                    ((TextView) v.findViewById(R.id.number_total_shows)).setText("" + dbHelper.getNumTotalShows());
+                    int watchedEpisode = dbHelper.getNumWatchedEpisodes();
+                    int unwatchedEpisode = dbHelper.getNumUnwatchedEpisodes();
+                    ((TextView) v.findViewById(R.id.number_watched_episodes)).setText("" + watchedEpisode);
+                    ((TextView) v.findViewById(R.id.number_unwatched_episodes)).setText("" + unwatchedEpisode);
+                    ((TextView) v.findViewById(R.id.number_total_episodes)).setText("" + (watchedEpisode + unwatchedEpisode));
+                }
+            });
+        }
+    }
+
     @Override
     public void onEpisodeInteraction(Episode ep) {
         Log.w("MainActivity", "onEpisodeInteraction");
         if (running) {
             refreshFragments();
+            isNeedingRefresh = false;
+        } else {
+            isNeedingRefresh = true;
+        }
+    }
+
+
+    @Override
+    public void onCalendarEpisodeInteraction() {
+        Log.w("MainActivity", "onCalendarInteraction");
+        if (running) {
+            refreshFragmentsWithoutCalendar();
             isNeedingRefresh = false;
         } else {
             isNeedingRefresh = true;

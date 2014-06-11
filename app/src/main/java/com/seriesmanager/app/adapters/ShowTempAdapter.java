@@ -16,7 +16,7 @@ import com.seriesmanager.app.database.DBHelper;
 import com.seriesmanager.app.entities.Episode;
 import com.seriesmanager.app.entities.Season;
 import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
-import com.seriesmanager.app.ui.dialogs.EpisodeRatingDialog;
+import com.seriesmanager.app.ui.fragments.EpisodeFragment;
 
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
@@ -26,10 +26,12 @@ public class ShowTempAdapter extends BaseExpandableListAdapter {
     private LayoutInflater inflater;
     private List<ParentGroup> mParent;
     private Context context;
+    private EpisodeFragment episodeFragment;
 
-    public ShowTempAdapter(Context context, List<ParentGroup> parent) {
+    public ShowTempAdapter(Context context, EpisodeFragment episodeFragment, List<ParentGroup> parent) {
         mParent = parent;
         this.context = context;
+        this.episodeFragment = episodeFragment;
         inflater = LayoutInflater.from(context);
     }
 
@@ -111,9 +113,10 @@ public class ShowTempAdapter extends BaseExpandableListAdapter {
         ((TextView) view.findViewById(R.id.name)).setText(ep.getName());
         TextView tvName = ((TextView) view.findViewById(R.id.text_date));
         try {
-            tvName.setText(new SimpleDateFormat("dd/MM/yyyy").format(ep.getAirDate()));
+            tvName.setText(ep.getEpisodeNumber() + "                "
+                    + new SimpleDateFormat("dd/MM/yyyy").format(ep.getAirDate()));
         } catch (Exception e) {
-            tvName.setText("Date unknown");
+            tvName.setText(ep.getEpisodeNumber() + "                Date unknown");
         }
         ((TextView) view.findViewById(R.id.text_summary)).setText(ep.getSummary());
         cb.setChecked(ep.isWatched());
@@ -123,8 +126,8 @@ public class ShowTempAdapter extends BaseExpandableListAdapter {
             public void onClick(View view) {
                 ep.setWatched(cb.isChecked());
                 new DBHelper(context, null).updateEpisode(ep);
-                if (ep.isWatched())
-                    new EpisodeRatingDialog(context, ep).show();
+                //if (ep.isWatched())
+                //new EpisodeRatingDialog(context, episodeFragment, ep).show();
                 ((OnEpisodeInteractionListener) Comm.mainContext).onEpisodeInteraction(ep);
                 notifyDataSetChanged();
             }
@@ -133,30 +136,6 @@ public class ShowTempAdapter extends BaseExpandableListAdapter {
         View moreInfo = view.findViewById(R.id.more_info);
         //((RelativeLayout.LayoutParams) moreInfo.getLayoutParams()).bottomMargin = -50;
         moreInfo.setVisibility(View.GONE);
-        /*view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                View moreInfo = view.findViewById(R.id.more_info);
-                ExpandAnimation anim = new ExpandAnimation(moreInfo, 1000); // Not working as planned
-                moreInfo.startAnimation(anim);
-            }
-        });*/
-        /*view.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new AlertDialog.Builder(context)
-                        .setTitle("Episode Click")
-                        .setMessage(ep.getName() + "\n" + ep.getEpisodeNumber() + "\n" +
-                                ep.getAirDate().toLocaleString() + "\nWatched: " + ep.isWatched())
-                        .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                            }
-                        })
-                        .setIcon(android.R.drawable.ic_dialog_info)
-                        .show();
-            }
-        });*/
 
         return view;
     }

@@ -1,6 +1,8 @@
 package com.seriesmanager.app.adapters;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.DataSetObserver;
 import android.view.LayoutInflater;
@@ -11,11 +13,12 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.seriesmanager.app.Comm;
+import com.seriesmanager.app.Constants;
 import com.seriesmanager.app.R;
 import com.seriesmanager.app.database.DBHelper;
-import com.seriesmanager.app.entities.Episode;
 import com.seriesmanager.app.entities.ShowLite;
-import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
+import com.seriesmanager.app.interfaces.OnCalendarInteractionListener;
+import com.seriesmanager.app.ui.MainActivity;
 import com.seriesmanager.app.ui.ShowActivity;
 
 import java.util.Date;
@@ -112,7 +115,42 @@ public class CalendarAdapter extends BaseExpandableListAdapter {
             public void onClick(View view) {
                 ep.setWatched(cb.isChecked());
                 new DBHelper(context, null).updateEpisodeWatched(ep.getId(), ep.isWatched());
-                ((OnEpisodeInteractionListener) context).onEpisodeInteraction(new Episode());
+                if (ep.isWatched()) {
+                    new AlertDialog.Builder(context).setTitle("Share episode")
+                            .setMessage("Do you want to share this episode?")
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    new DBHelper(context, null).updateEpisodeWatched(ep.getId(), ep.isWatched());
+                                    Intent sendIntent = new Intent();
+                                    sendIntent.setAction(Intent.ACTION_SEND);
+                                    String url = Constants.TRAKT_SHOW_URL
+                                            + ep.getShow().getName().trim().toLowerCase().replaceAll(" +", "+")
+                                            + "/season/" + Integer.toString(ep.getSeasonNumber()) + "/episode/"
+                                            + Integer.toString(ep.getEpisodeNumber());
+                                    sendIntent.putExtra(Intent.EXTRA_TEXT, url);
+                                    sendIntent.setType("text/plain");
+                                    Comm.mainContext.startActivity(Intent.createChooser(sendIntent, "Share episode via"));
+                                    ((MainActivity) Comm.mainContext).onCalendarEpisodeInteraction();
+                                }
+                            })
+                            .setNeutralButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    new DBHelper(context, null).updateEpisodeWatched(ep.getId(), ep.isWatched());
+                                    ((MainActivity) Comm.mainContext).onCalendarEpisodeInteraction();
+                                }
+                            })
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    cb.setChecked(!cb.isChecked());
+                                    ep.setWatched(!ep.isWatched());
+                                }
+                            }).create().show();
+                }
+                ((OnCalendarInteractionListener) context).onCalendarEpisodeInteraction();
+                //((OnEpisodeInteractionListener) context).onEpisodeInteraction(new Episode());
             }
         });
 
@@ -130,7 +168,6 @@ public class CalendarAdapter extends BaseExpandableListAdapter {
 
         return view;
     }
-
 
     @Override
     public boolean isChildSelectable(int i, int i1) {
