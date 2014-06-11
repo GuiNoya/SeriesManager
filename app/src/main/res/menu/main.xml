@@ -1,7 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.seriesmanager.app.ui.MainActivity">
+
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
@@ -14,7 +16,34 @@
         android:title="@string/action_add_show_title"
         app:showAsAction="always" />
     <item
-        android:id="@+id/action_filter_favorite"
-        android:title="filter favorite"
-        app:showAsAction="ifRoom" />
+        android:id="@+id/action_filter"
+        android:icon="@drawable/abc_ic_cab_done_holo_dark"
+        android:title="@string/action_filter_shows"
+        android:visible="false"
+        app:showAsAction="always">
+        <menu>
+            <group>
+                <item
+                    android:id="@+id/action_filter_favorite"
+                    android:orderInCategory="100"
+                    android:title="Only favorites"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/action_filter_on_air"
+                    android:orderInCategory="101"
+                    android:title="Only on air"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/action_filter_ended"
+                    android:orderInCategory="102"
+                    android:title="Only ended"
+                    app:showAsAction="never" />
+                <item
+                    android:id="@+id/action_filter_all"
+                    android:orderInCategory="103"
+                    android:title="All shows"
+                    app:showAsAction="never" />
+            </group>
+        </menu>
+    </item>
 </menu>

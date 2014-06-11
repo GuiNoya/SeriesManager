@@ -50,7 +50,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     private ViewPager mViewPager;
     private boolean isNeedingRefresh = false;
     private boolean running;
-    private boolean onlyFavorites = false;
+    private short filterFlag = 0;
+    private MenuItem filterView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +85,11 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             @Override
             public void onPageSelected(int position) {
                 actionBar.setSelectedNavigationItem(position);
+                if (position == 2) {
+                    filterView.setVisible(true);
+                } else {
+                    filterView.setVisible(false);
+                }
             }
         });
 
@@ -125,6 +131,7 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
+        filterView = menu.findItem(R.id.action_filter);
         return true;
     }
 
@@ -137,20 +144,44 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
             Intent intent = new Intent(this, AddShowActivity.class);
             startActivity(intent);
             return true;
+        } else if (id == R.id.action_filter) {
+            return true;
         } else if (id == R.id.action_filter_favorite) {
-            onlyFavorites = !onlyFavorites;
+            filterFlag = 1;
             final ShowFragment frg = (ShowFragment) getSupportFragmentManager().findFragmentByTag("shows");
             if (frg != null) {
-                if (onlyFavorites) {
-                    Comm.showsFiltered = new DBHelper(this, null).getFavoriteShows();
-                    ShowListAdapter adapter = new ShowListAdapter(this, Comm.showsFiltered);
-                    frg.setListAdapter(adapter);
-                } else {
-                    Comm.showsFiltered = Comm.showsInstances;
-                    ShowListAdapter adapter = new ShowListAdapter(this, Comm.showsInstances);
-                    frg.setListAdapter(adapter);
-                }
+                filterShows();
+                ShowListAdapter adapter = new ShowListAdapter(this, Comm.showsFiltered);
+                frg.setListAdapter(adapter);
             }
+            return true;
+        } else if (id == R.id.action_filter_on_air) {
+            filterFlag = 2;
+            final ShowFragment frg = (ShowFragment) getSupportFragmentManager().findFragmentByTag("shows");
+            if (frg != null) {
+                filterShows();
+                ShowListAdapter adapter = new ShowListAdapter(this, Comm.showsFiltered);
+                frg.setListAdapter(adapter);
+            }
+            return true;
+        } else if (id == R.id.action_filter_ended) {
+            filterFlag = 3;
+            final ShowFragment frg = (ShowFragment) getSupportFragmentManager().findFragmentByTag("shows");
+            if (frg != null) {
+                filterShows();
+                ShowListAdapter adapter = new ShowListAdapter(this, Comm.showsFiltered);
+                frg.setListAdapter(adapter);
+            }
+            return true;
+        } else if (id == R.id.action_filter_all) {
+            filterFlag = 0;
+            final ShowFragment frg = (ShowFragment) getSupportFragmentManager().findFragmentByTag("shows");
+            if (frg != null) {
+                filterShows();
+                ShowListAdapter adapter = new ShowListAdapter(this, Comm.showsFiltered);
+                frg.setListAdapter(adapter);
+            }
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -202,6 +233,18 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
     }
 
+    private void filterShows() {
+        if (filterFlag == 0) {
+            Comm.showsFiltered = Comm.showsInstances;
+        } else if (filterFlag == 1) {
+            Comm.showsFiltered = new DBHelper(this, null).getFavoriteShows();
+        } else if (filterFlag == 2) {
+            Comm.showsFiltered = new DBHelper(this, null).getOnAirShows();
+        } else if (filterFlag == 3) {
+            Comm.showsFiltered = new DBHelper(this, null).getEndedShows();
+        }
+    }
+
     private void refreshFragments() {
         FragmentManager fm = getSupportFragmentManager();
         final ShowOverdueFragment frg1 = (ShowOverdueFragment) fm.findFragmentByTag("overdue");
@@ -238,14 +281,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         final ShowFragment frg3 = (ShowFragment) fm.findFragmentByTag("shows");
         if (frg3 != null) {
             Comm.showsInstances = new DBHelper(this, null).loadShowsAll();
-            final ShowListAdapter adapter;
-            if (onlyFavorites) {
-                Comm.showsFiltered = new DBHelper(this, null).getFavoriteShows();
-                adapter = new ShowListAdapter(this, Comm.showsFiltered);
-            } else {
-                Comm.showsFiltered = Comm.showsInstances;
-                adapter = new ShowListAdapter(this, Comm.showsInstances);
-            }
+            filterShows();
+            final ShowListAdapter adapter = new ShowListAdapter(this, Comm.showsFiltered);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

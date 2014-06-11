@@ -14,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
 
+import com.seriesmanager.app.Comm;
 import com.seriesmanager.app.Constants;
 import com.seriesmanager.app.R;
 import com.seriesmanager.app.adapters.ShowTempAdapter;
@@ -22,6 +23,7 @@ import com.seriesmanager.app.entities.Episode;
 import com.seriesmanager.app.entities.Season;
 import com.seriesmanager.app.entities.Show;
 import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
+import com.seriesmanager.app.ui.MainActivity;
 import com.seriesmanager.app.ui.ShowActivity;
 import com.seriesmanager.app.ui.anim.ExpandAnimation;
 
@@ -168,9 +170,10 @@ public class EpisodeFragment extends ListFragment {
                             Episode ep = it.next();
                             if (!ep.isWatched()) {
                                 ep.setWatched(true);
-                                new DBHelper(getActivity(), null).updateEpisode(ep);
+                                new DBHelper(getActivity(), null).updateEpisodeWatched(ep.getId(), ep.isWatched());
                             }
                             mAdapter.notifyDataSetChanged();
+                            ((MainActivity) Comm.mainContext).onEpisodeInteraction(ep);
                         }
                     }
                 })

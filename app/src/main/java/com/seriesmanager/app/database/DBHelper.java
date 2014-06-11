@@ -778,8 +778,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String query = "SELECT COUNT(DISTINCT sh." + COLUMN_ID + ") FROM " + TABLE_SHOW + " sh, "
                 + TABLE_EPISODE + " e, " + TABLE_SEASON + " se" + " WHERE e." + COLUMN_WATCHED
                 + "=0 and e." + COLUMN_DATE + "<date('now') and e." + COLUMN_ID_FOREIGN + "=se."
-                + COLUMN_ID + " and se." + COLUMN_ID_FOREIGN + "=sh." + COLUMN_ID + " GROUP BY sh."
-                + COLUMN_ID;
+                + COLUMN_ID + " and se." + COLUMN_ID_FOREIGN + "=sh." + COLUMN_ID;
 
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
