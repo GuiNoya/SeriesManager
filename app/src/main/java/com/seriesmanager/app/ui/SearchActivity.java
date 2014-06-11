@@ -32,7 +32,6 @@ public class SearchActivity extends ActionBarActivity {
         setContentView(R.layout.activity_search);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         list = (ListView) findViewById(R.id.list_search);
-        //list.setAdapter(new SearchAdapter(this, TestContent.SEARCH_LIST));
         list.setAdapter(new SearchAdapter(this, new ArrayList<Show>()));
     }
 

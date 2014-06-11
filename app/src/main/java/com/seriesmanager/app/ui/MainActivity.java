@@ -252,6 +252,18 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     private void refreshFragments() {
         FragmentManager fm = getSupportFragmentManager();
+        final ShowFragment frg3 = (ShowFragment) fm.findFragmentByTag("shows");
+        Comm.showsInstances = new DBHelper(this, null).loadShowsAll();
+        filterShows();
+        if (frg3 != null) {
+            final ShowListAdapter adapter = new ShowListAdapter(this, Comm.showsFiltered);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    frg3.setListAdapter(adapter);
+                }
+            });
+        }
         final ShowOverdueFragment frg1 = (ShowOverdueFragment) fm.findFragmentByTag("overdue");
         if (frg1 != null) {
             final OverdueAdapter adapter = new OverdueAdapter(this, new DBHelper(this, null).loadOverdueShows());
@@ -283,18 +295,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 }
             });
         }
-        final ShowFragment frg3 = (ShowFragment) fm.findFragmentByTag("shows");
-        if (frg3 != null) {
-            Comm.showsInstances = new DBHelper(this, null).loadShowsAll();
-            filterShows();
-            final ShowListAdapter adapter = new ShowListAdapter(this, Comm.showsFiltered);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    frg3.setListAdapter(adapter);
-                }
-            });
-        }
         final View v = findViewById(R.id.relativeLayout0);
         if (v != null) {
             runOnUiThread(new Runnable() {
@@ -317,6 +317,18 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
     private void refreshFragmentsWithoutCalendar() {
         FragmentManager fm = getSupportFragmentManager();
+        final ShowFragment frg3 = (ShowFragment) fm.findFragmentByTag("shows");
+        Comm.showsInstances = new DBHelper(this, null).loadShowsAll();
+        filterShows();
+        if (frg3 != null) {
+            final ShowListAdapter adapter = new ShowListAdapter(this, Comm.showsFiltered);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    frg3.setListAdapter(adapter);
+                }
+            });
+        }
         final ShowOverdueFragment frg1 = (ShowOverdueFragment) fm.findFragmentByTag("overdue");
         if (frg1 != null) {
             final OverdueAdapter adapter = new OverdueAdapter(this, new DBHelper(this, null).loadOverdueShows());
@@ -324,18 +336,6 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
                 @Override
                 public void run() {
                     frg1.setListAdapter(adapter);
-                }
-            });
-        }
-        final ShowFragment frg3 = (ShowFragment) fm.findFragmentByTag("shows");
-        if (frg3 != null) {
-            Comm.showsInstances = new DBHelper(this, null).loadShowsAll();
-            filterShows();
-            final ShowListAdapter adapter = new ShowListAdapter(this, Comm.showsFiltered);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    frg3.setListAdapter(adapter);
                 }
             });
         }

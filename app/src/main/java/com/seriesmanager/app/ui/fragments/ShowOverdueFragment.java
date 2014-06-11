@@ -52,7 +52,6 @@ public class ShowOverdueFragment extends ListFragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-        //mAdapter = new OverdueAdapter(getActivity(), TestContent.OVERDUE_LIST);
         mAdapter = new OverdueAdapter(getActivity(), new DBHelper(getActivity(), null).loadOverdueShows());
         setListAdapter(mAdapter);
     }

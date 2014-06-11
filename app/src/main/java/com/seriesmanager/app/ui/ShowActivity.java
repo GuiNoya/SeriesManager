@@ -209,6 +209,8 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
                 rootView = inflater.inflate(R.layout.fragment_show_info, container, false);
                 ImageView cover = (ImageView) rootView.findViewById(R.id.image_cover);
                 cover.setImageBitmap(show.getCover());
+                cover.setScaleX(2.2f);
+                cover.setScaleY(2.2f);
                 final ImageView img = (ImageView) rootView.findViewById(R.id.image_plus);
                 if (show.isFavorite()) {
                     img.setImageResource(android.R.drawable.btn_star_big_on);
@@ -234,6 +236,7 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
                         + Integer.toString(show.getRuntime()) + " min  |  " + show.getStatus();
                 ((TextView) rootView.findViewById(R.id.text_year_runtime_status)).setText(text_essential);
                 String genresString = show.getGenresPlainText().replace("|", ", ");
+                genresString = genresString.substring(0, genresString.length() - 2);
                 ((TextView) rootView.findViewById(R.id.text_genres)).setText(genresString);
                 ((TextView) rootView.findViewById(R.id.text_country)).setText(show.getCountry());
                 SimpleDateFormat time = new SimpleDateFormat("h:mma");

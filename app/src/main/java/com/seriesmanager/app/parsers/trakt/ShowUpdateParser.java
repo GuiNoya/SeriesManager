@@ -71,6 +71,7 @@ public class ShowUpdateParser extends AsyncTask<Long, Integer, Show> {
                 posterUrl = posterUrl.substring(0, posterUrl.length() - 4) + "-138" + posterUrl.substring(posterUrl.length() - 4);
                 show.setCover(posterUrl);
                 List<String> genres = new ArrayList<String>();
+                show.setGenres(genres);
                 JSONArray jsonArr = jsonObj.getJSONArray("genres");
                 for (int i = 0; i < jsonArr.length(); i++) {
                     genres.add(jsonArr.getString(i));

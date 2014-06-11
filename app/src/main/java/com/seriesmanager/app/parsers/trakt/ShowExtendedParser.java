@@ -64,8 +64,8 @@ public class ShowExtendedParser extends AsyncTask<String, Integer, Show> {
             String posterUrl = jsonObj.getString("poster");
             posterUrl = posterUrl.substring(0, posterUrl.length() - 4) + "-138" + posterUrl.substring(posterUrl.length() - 4);
             show.setCover(posterUrl);
-            show.setCover(jsonObj.getString("poster"));
             List<String> genres = new ArrayList<String>();
+            show.setGenres(genres);
             JSONArray jsonArr = jsonObj.getJSONArray("genres");
             for (int i = 0; i < jsonArr.length(); i++) {
                 genres.add(jsonArr.getString(i));
