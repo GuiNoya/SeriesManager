@@ -13,6 +13,7 @@ public class ShowSummary {
     String summary;
     String network;
     Bitmap cover;
+    boolean added = false;
 
     public ShowSummary() {
     }
@@ -59,6 +60,10 @@ public class ShowSummary {
         return cover;
     }
 
+    public void setCover(Bitmap cover) {
+        this.cover = cover;
+    }
+
     public void setCover(byte[] coverArray) {
         this.cover = BitmapFactory.decodeByteArray(coverArray, 0, coverArray.length);
     }
@@ -71,13 +76,17 @@ public class ShowSummary {
         }
     }
 
-    public void setCover(Bitmap cover) {
-        this.cover = cover;
-    }
-
     public byte[] getCoverInByteArray() {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         this.cover.compress(Bitmap.CompressFormat.JPEG, 100, bos);
         return bos.toByteArray();
+    }
+
+    public boolean isAdded() {
+        return added;
+    }
+
+    public void setAdded(boolean added) {
+        this.added = added;
     }
 }

@@ -165,21 +165,27 @@ public class AddShowTrendingsFragment extends ListFragment implements LoaderMana
             ((ImageView) rowView.findViewById(R.id.image_cover)).setImageBitmap(sh.getCover());
             ((TextView) rowView.findViewById(R.id.text_start_summary)).setText(sh.getSummary());
             final ImageView img = ((ImageView) rowView.findViewById(R.id.image_add));
-            img.setImageResource(R.drawable.ic_plus);
-            img.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    img.setImageResource(R.drawable.ic_correct);
-                    //Toast.makeText(context, sh.getName() + " adicionada", Toast.LENGTH_SHORT).show();
-                    img.setOnClickListener(null);
-                    try {
-                        new ShowAdder().execute(sh.getId());
-                        mListener.onShowListInteraction();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+            if (sh.isAdded()) {
+                img.setImageResource(R.drawable.ic_correct);
+                img.setOnClickListener(null);
+            } else {
+                img.setImageResource(R.drawable.ic_plus);
+                img.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        img.setImageResource(R.drawable.ic_correct);
+                        sh.setAdded(true);
+                        //Toast.makeText(context, sh.getName() + " adicionada", Toast.LENGTH_SHORT).show();
+                        img.setOnClickListener(null);
+                        try {
+                            new ShowAdder().execute(sh.getId());
+                            mListener.onShowListInteraction();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            });
+                });
+            }
             rowView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

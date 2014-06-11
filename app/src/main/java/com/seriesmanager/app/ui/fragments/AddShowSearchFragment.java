@@ -126,6 +126,12 @@ public class AddShowSearchFragment extends ListFragment implements LoaderManager
     @Override
     public void onLoadFinished(Loader<List<ShowSummary>> loader, List<ShowSummary> data) {
         if (data != null) {
+            List<Integer> listShows = new DBHelper(getActivity(), null).getShowsIds();
+            for (ShowSummary ss : data) {
+                if (listShows.contains(ss.getId())) {
+                    ss.setAdded(true);
+                }
+            }
             list.setAdapter(new SemiShowAdapter(getActivity(), data));
             //((SemiShowAdapter) getListAdapter()).addAll(data);
             progressBar.setVisibility(View.GONE);
@@ -177,21 +183,27 @@ public class AddShowSearchFragment extends ListFragment implements LoaderManager
             ((ImageView) rowView.findViewById(R.id.image_cover)).setImageBitmap(sh.getCover());
             ((TextView) rowView.findViewById(R.id.text_start_summary)).setText(sh.getSummary());
             final ImageView img = ((ImageView) rowView.findViewById(R.id.image_add));
-            img.setImageResource(R.drawable.ic_plus);
-            img.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    img.setImageResource(R.drawable.ic_correct);
-                    //Toast.makeText(context, sh.getName() + " adicionada", Toast.LENGTH_SHORT).show();
-                    img.setOnClickListener(null);
-                    try {
-                        new ShowAdder().execute(sh.getId());
-                        mListener.onShowListInteraction();
-                    } catch (Exception e) {
-                        e.printStackTrace();
+            if (sh.isAdded()) {
+                img.setImageResource(R.drawable.ic_correct);
+                img.setOnClickListener(null);
+            } else {
+                img.setImageResource(R.drawable.ic_plus);
+                img.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        img.setImageResource(R.drawable.ic_correct);
+                        //Toast.makeText(context, sh.getName() + " adicionada", Toast.LENGTH_SHORT).show();
+                        img.setOnClickListener(null);
+                        sh.setAdded(true);
+                        try {
+                            new ShowAdder().execute(sh.getId());
+                            mListener.onShowListInteraction();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            });
+                });
+            }
 
             return rowView;
         }

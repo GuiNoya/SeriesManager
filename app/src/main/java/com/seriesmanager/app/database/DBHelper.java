@@ -691,6 +691,23 @@ public class DBHelper extends SQLiteOpenHelper {
         return value;
     }
 
+    public List<Integer> getShowsIds() {
+        String query = "SELECT id FROM " + TABLE_SHOW;
+        List<Integer> list = new ArrayList<Integer>();
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                list.add(cursor.getInt(0));
+                cursor.moveToNext();
+            }
+        }
+
+        return list;
+    }
+
     public void deleteShow(int showId) {
         SQLiteDatabase db = getReadableDatabase();
         db.delete(TABLE_SHOW, COLUMN_ID + " = " + Integer.toString(showId), null);

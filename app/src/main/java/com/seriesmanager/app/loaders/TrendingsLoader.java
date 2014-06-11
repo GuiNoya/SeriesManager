@@ -18,7 +18,7 @@ public class TrendingsLoader extends AsyncTaskLoader<List<ShowSummary>> {
     public List<ShowSummary> loadInBackground() {
         List<ShowSummary> list;
         try {
-            list = new TrendingShowsParser().get();
+            list = new TrendingShowsParser(getContext()).get();
         } catch (Exception e) {
             list = null;
         }
