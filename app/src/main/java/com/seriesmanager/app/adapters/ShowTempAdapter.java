@@ -49,7 +49,7 @@ public class ShowTempAdapter extends BaseExpandableListAdapter {
     }
 
     public int getGroupSeasonNumber(int i) {
-        return mParent.get(i).getSeasonNumber();
+        return mParent.get(i).getSeason().getSeasonNumber();
     }
 
     @Override
@@ -84,7 +84,7 @@ public class ShowTempAdapter extends BaseExpandableListAdapter {
         }
         ((TextView) view.findViewById(R.id.text)).setText(getGroup(i).toString());
         final ProgressBar pb = (ProgressBar) view.findViewById(R.id.progress_bar_season);
-        final Season se = Comm.actualShow.getSeasons().get(mParent.get(i).getSeasonNumber());
+        final Season se = mParent.get(i).getSeason();
         if (se.getEpisodes().size() > 0) {
             pb.setMax(se.getEpisodes().values().size());
             int count = 0;
@@ -180,7 +180,7 @@ public class ShowTempAdapter extends BaseExpandableListAdapter {
     public static class ParentGroup {
         private String mTitle;
         private List<Episode> mArrayChildren;
-        private int SeasonNumber;
+        private Season season;
 
         public ParentGroup() {
         }
@@ -210,12 +210,12 @@ public class ShowTempAdapter extends BaseExpandableListAdapter {
             this.mArrayChildren = mArrayChildren;
         }
 
-        public int getSeasonNumber() {
-            return SeasonNumber;
+        public Season getSeason() {
+            return season;
         }
 
-        public void setSeasonNumber(int SeasonNumber) {
-            this.SeasonNumber = SeasonNumber;
+        public void setSeason(Season season) {
+            this.season = season;
         }
     }
 }

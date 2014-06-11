@@ -7,9 +7,4 @@
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />
-    <item
-        android:id="@+id/action_clean_db"
-        android:orderInCategory="101"
-        android:title="Clean DB"
-        app:showAsAction="always" />
 </menu>

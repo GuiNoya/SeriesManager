@@ -9,15 +9,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.seriesmanager.app.R;
-import com.seriesmanager.app.entities.Show;
+import com.seriesmanager.app.entities.ShowLite;
 
 import java.util.List;
 
-public class OverdueAdapter extends ArrayAdapter<Show> {
+public class OverdueAdapter extends ArrayAdapter<ShowLite> {
     private final Context context;
-    private final List<Show> values;
+    private final List<ShowLite> values;
 
-    public OverdueAdapter(Context context, List<Show> values) {
+    public OverdueAdapter(Context context, List<ShowLite> values) {
         super(context, R.layout.fragment_show_overdue_list, values);
         this.context = context;
         this.values = values;
@@ -35,7 +35,7 @@ public class OverdueAdapter extends ArrayAdapter<Show> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        final Show sh = values.get(position);
+        final ShowLite sh = values.get(position);
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(R.layout.fragment_show_overdue_list, parent, false);
         ((TextView) rowView.findViewById(R.id.text_name_show)).setText(sh.getName());

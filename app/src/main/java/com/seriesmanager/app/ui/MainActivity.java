@@ -29,6 +29,7 @@ import com.seriesmanager.app.database.DBHelper;
 import com.seriesmanager.app.entities.Episode;
 import com.seriesmanager.app.entities.Season;
 import com.seriesmanager.app.entities.Show;
+import com.seriesmanager.app.entities.ShowLite;
 import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
 import com.seriesmanager.app.interfaces.OnShowInteractionListener;
 import com.seriesmanager.app.interfaces.OnShowListInteractionListener;
@@ -59,9 +60,9 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
 
         findViewById(R.id.progress_bar_update).setVisibility(View.GONE);
 
-        Comm.showsList = new DBHelper(this, null).loadShowsAll();
+        Comm.showsInstances = new DBHelper(this, null).loadShowsAll();
 
-        if (Comm.showsList.size() == 0) {
+        if (Comm.showsInstances.size() == 0) {
             Intent intent = new Intent(this, StartActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
@@ -130,25 +131,16 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             return true;
-        } else if (id == R.id.action_clean_db) {
-            DBHelper db = new DBHelper(this, null);
-            db.getWritableDatabase().delete("shows", null, null);
-            db.getWritableDatabase().delete("seasons", null, null);
-            db.getWritableDatabase().delete("episodes", null, null);
-            db.close();
-            refreshFragments();
-            return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public Loader<List<Show>> onCreateLoader(int id, Bundle args) {
-        //Toast.makeText(this, "Updating shows...", Toast.LENGTH_SHORT).show();
         findViewById(R.id.progress_bar_update).setVisibility(View.VISIBLE);
         Map<Long, Long> map = new LinkedHashMap<Long, Long>();
         long now = new Date().getTime();
-        for (Show show : Comm.showsList) {
+        for (ShowLite show : Comm.showsInstances) {
             //TODO: make show status interfere the update
             if (show.getLastUpdated() < now - 86400000) {
                 map.put((long) show.getId(), show.getLastUpdated());
@@ -226,8 +218,8 @@ public class MainActivity extends ActionBarActivity implements ActionBar.TabList
         }
         final ShowFragment frg3 = (ShowFragment) fm.findFragmentByTag("shows");
         if (frg3 != null) {
-            Comm.showsList = new DBHelper(this, null).loadShowsAll();
-            final ShowListAdapter adapter = new ShowListAdapter(this, Comm.showsList);
+            Comm.showsInstances = new DBHelper(this, null).loadShowsAll();
+            final ShowListAdapter adapter = new ShowListAdapter(this, Comm.showsInstances);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

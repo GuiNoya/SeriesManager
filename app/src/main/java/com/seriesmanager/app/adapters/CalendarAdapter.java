@@ -14,6 +14,7 @@ import com.seriesmanager.app.Comm;
 import com.seriesmanager.app.R;
 import com.seriesmanager.app.database.DBHelper;
 import com.seriesmanager.app.entities.Episode;
+import com.seriesmanager.app.entities.ShowLite;
 import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
 import com.seriesmanager.app.ui.ShowActivity;
 
@@ -86,7 +87,7 @@ public class CalendarAdapter extends BaseExpandableListAdapter {
 
         final CalendarEpisode ep = mParent.get(i).getArrayChildren().get(i1);
 
-        ((TextView) view.findViewById(R.id.text_name)).setText(ep.getShowName());
+        ((TextView) view.findViewById(R.id.text_name)).setText(ep.getShow().getName());
         String se = "S" + ep.getSeasonNumber() + "E" + ep.getEpisodeNumber();
         ((TextView) view.findViewById(R.id.text_episode)).setText(se);
         String[] datas = ep.getAirDate().toString().split(" ");
@@ -110,7 +111,7 @@ public class CalendarAdapter extends BaseExpandableListAdapter {
             public void onClick(View view) {
                 Intent intent = new Intent(Comm.mainContext, ShowActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.putExtra("show", (int) ep.getShowId());
+                intent.putExtra("show", ep.getShow().getId());
                 intent.putExtra("season", ep.getSeasonNumber());
                 intent.putExtra("episode", ep.getEpisodeNumber());
                 Comm.mainContext.startActivity(intent);
@@ -183,8 +184,7 @@ public class CalendarAdapter extends BaseExpandableListAdapter {
     public static class CalendarEpisode {
 
         private long id;
-        private long showId;
-        private String showName;
+        private ShowLite show;
         private int seasonNumber;
         private int episodeNumber;
         private String name;
@@ -202,20 +202,12 @@ public class CalendarAdapter extends BaseExpandableListAdapter {
             this.id = id;
         }
 
-        public long getShowId() {
-            return showId;
+        public ShowLite getShow() {
+            return show;
         }
 
-        public void setShowId(long showId) {
-            this.showId = showId;
-        }
-
-        public String getShowName() {
-            return showName;
-        }
-
-        public void setShowName(String showName) {
-            this.showName = showName;
+        public void setShow(ShowLite show) {
+            this.show = show;
         }
 
         public int getSeasonNumber() {

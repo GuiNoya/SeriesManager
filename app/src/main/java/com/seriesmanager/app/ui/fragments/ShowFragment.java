@@ -14,7 +14,7 @@ import com.seriesmanager.app.R;
 import com.seriesmanager.app.adapters.ShowListAdapter;
 import com.seriesmanager.app.database.DBHelper;
 import com.seriesmanager.app.entities.Season;
-import com.seriesmanager.app.entities.Show;
+import com.seriesmanager.app.entities.ShowLite;
 import com.seriesmanager.app.interfaces.OnShowListInteractionListener;
 import com.seriesmanager.app.ui.ShowActivity;
 
@@ -53,8 +53,7 @@ public class ShowFragment extends ListFragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-        //setListAdapter(new ShowListAdapter(getActivity(), TestContent.SHOWS));
-        mAdapter = new ShowListAdapter(getActivity(), Comm.showsList);
+        mAdapter = new ShowListAdapter(getActivity(), Comm.showsInstances);
         setListAdapter(mAdapter);
     }
 
@@ -77,16 +76,9 @@ public class ShowFragment extends ListFragment {
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        Show sh = (Show) l.getAdapter().getItem(position);
-        //Intent intent = new Intent(null, null, getActivity(), ShowActivity.class);
-        /*DBHelper db = new DBHelper(Comm.mainContext, null);
-        db.persistShow(sh);*/
-        if (!sh.isLoaded()) {
-            new DBHelper(Comm.mainContext, null).loadShowExtraInfo(sh);
-            sh.setLoaded(true);
-        }
+        ShowLite sh = (ShowLite) l.getAdapter().getItem(position);
         Intent intent = new Intent(Comm.mainContext, ShowActivity.class);
-        Comm.actualShow = sh;
+        intent.putExtra("show", sh.getId());
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
@@ -98,8 +90,8 @@ public class ShowFragment extends ListFragment {
     }
 
     public void notifyDataChanged() {
-        Comm.showsList = new DBHelper(getActivity(), null).loadShowsAll();
-        mAdapter = new ShowListAdapter(getActivity(), Comm.showsList);
+        Comm.showsInstances = new DBHelper(getActivity(), null).loadShowsAll();
+        mAdapter = new ShowListAdapter(getActivity(), Comm.showsInstances);
         setListAdapter(mAdapter);
         mAdapter.notifyDataSetChanged();
     }

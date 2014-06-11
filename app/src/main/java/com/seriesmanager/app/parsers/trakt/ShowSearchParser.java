@@ -49,7 +49,6 @@ public class ShowSearchParser extends AsyncTask<String, Integer, List<ShowSummar
                 show.setId(jsonObj.getInt("tvdb_id"));
                 show.setName(jsonObj.getString("title"));
                 show.setSummary(jsonObj.getString("overview"));
-                show.setNetwork(jsonObj.getString("network"));
                 JSONObject jsonImages = jsonObj.getJSONObject("images");
                 String posterUrl = jsonImages.getString("poster");
                 posterUrl = posterUrl.substring(0, posterUrl.length() - 4) + "-138" + posterUrl.substring(posterUrl.length() - 4);

@@ -34,18 +34,19 @@ public class UpdateShowsLoader extends AsyncTaskLoader<List<Show>> {
                     Show s = new ShowUpdateParser(showId, map.get(showId)).get();
                     if (s != null) {
                         list.add(s);
-                        Integer i = new DBHelper(getContext(), null).getNextShowEpisode(s.getId());
+                        DBHelper dbHelper = new DBHelper(getContext(), null);
+                        Integer i = dbHelper.getNextShowEpisode(s.getId());
                         if (i != null) {
-                            new DBHelper(getContext(), null).updateCompleteShow(s);
+                            dbHelper.updateCompleteShow(s);
                             //TODO: get real time of the episode and the seasonEpisode string
                             Date date = new Date(new Date().getTime() + 10000);
-                            String seasonEpisode = new DBHelper(getContext(), null).getNextShowEpisode(s.getId()).toString();
+                            String seasonEpisode = dbHelper.getNextShowEpisode(s.getId()).toString();
                             Notification.newNotification(getContext(), s.getId(), s.getName(), seasonEpisode, date);
                         } else {
-                            new DBHelper(getContext(), null).updateCompleteShow(s);
+                            dbHelper.updateCompleteShow(s);
                             //TODO: get real time of the episode and the seasonEpisode string
                             Date date = new Date(new Date().getTime() + 10000);
-                            String seasonEpisode = new DBHelper(getContext(), null).getNextShowEpisode(s.getId()).toString();
+                            String seasonEpisode = dbHelper.getNextShowEpisode(s.getId()).toString();
                             Notification.newNotification(getContext(), s.getId(), s.getName(), seasonEpisode, date);
                         }
                     }

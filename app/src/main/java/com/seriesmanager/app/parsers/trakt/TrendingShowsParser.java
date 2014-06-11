@@ -59,7 +59,6 @@ public class TrendingShowsParser extends AsyncTask<String, Integer, List<ShowSum
                 show.setId(id);
                 show.setName(jsonObj.getString("title"));
                 show.setSummary(jsonObj.getString("overview"));
-                show.setNetwork(jsonObj.getString("network"));
                 String posterUrl = jsonObj.getString("poster");
                 posterUrl = posterUrl.substring(0, posterUrl.length() - 4) + "-138" + posterUrl.substring(posterUrl.length() - 4);
                 show.setCover(posterUrl);

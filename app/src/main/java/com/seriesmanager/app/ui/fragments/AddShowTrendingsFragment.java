@@ -210,7 +210,6 @@ public class AddShowTrendingsFragment extends ListFragment implements LoaderMana
                     });
                     show = new ShowExtendedParser(integers[0]).get();
                     new DBHelper(context, null).persistCompleteShow(show);
-                    Comm.showsList.add(show);
                     //TODO: get real time of the episode and the seasonEpisode string
                     Date date = new Date(new Date().getTime() + 10000);
                     String seasonEpisode = new DBHelper(context, null).getNextShowEpisode(show.getId()).toString();

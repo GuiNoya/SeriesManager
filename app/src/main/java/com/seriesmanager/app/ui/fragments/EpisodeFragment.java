@@ -14,7 +14,6 @@ import android.widget.AdapterView;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
 
-import com.seriesmanager.app.Comm;
 import com.seriesmanager.app.Constants;
 import com.seriesmanager.app.R;
 import com.seriesmanager.app.adapters.ShowTempAdapter;
@@ -23,6 +22,7 @@ import com.seriesmanager.app.entities.Episode;
 import com.seriesmanager.app.entities.Season;
 import com.seriesmanager.app.entities.Show;
 import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
+import com.seriesmanager.app.ui.ShowActivity;
 import com.seriesmanager.app.ui.anim.ExpandAnimation;
 
 import java.util.ArrayList;
@@ -64,8 +64,10 @@ public class EpisodeFragment extends ListFragment {
 
         final ExpandableListView lv = (ExpandableListView) getActivity().findViewById(R.id.container_seasons).findViewById(android.R.id.list);
 
+        final Show showA = ((ShowActivity) getActivity()).getShow();
+
         List<ShowTempAdapter.ParentGroup> list = new ArrayList<ShowTempAdapter.ParentGroup>();
-        Map<Integer, Season> seasons = Comm.actualShow.getSeasons();
+        Map<Integer, Season> seasons = showA.getSeasons();
         for (int i : seasons.keySet()) {
             ShowTempAdapter.ParentGroup pai;
             if (i == 0) {
@@ -73,7 +75,7 @@ public class EpisodeFragment extends ListFragment {
             } else {
                 pai = new ShowTempAdapter.ParentGroup("Season " + i);
             }
-            pai.setSeasonNumber(i);
+            pai.setSeason(seasons.get(i));
             list.add(pai);
             Map<Integer, Episode> hm = seasons.get(i).getEpisodes();
             List<Episode> al = new ArrayList<Episode>();
@@ -106,7 +108,7 @@ public class EpisodeFragment extends ListFragment {
                             long p = lv.getExpandableListPosition(pos);
                             int position = ExpandableListView.getPackedPositionGroup(p);
                             if (which == 0) {
-                                shareSeason(Comm.actualShow.getName(),
+                                shareSeason(showA.getName(),
                                         mAdapter.getGroupSeasonNumber(position));
                             } else if (which == 1) {
                                 showMarkSeasonWatchedDialog(position);
@@ -127,7 +129,7 @@ public class EpisodeFragment extends ListFragment {
                             int positionEpisode = ExpandableListView.getPackedPositionChild(p);
                             if (which == 0) {
                                 Episode ep = (Episode) mAdapter.getChild(positionGroup, positionEpisode);
-                                shareEpisode(Comm.actualShow.getName(),
+                                shareEpisode(showA.getName(),
                                         mAdapter.getGroupSeasonNumber(positionGroup),
                                         ep.getEpisodeNumber());
                             }

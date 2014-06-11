@@ -8,10 +8,12 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.seriesmanager.app.Comm;
 import com.seriesmanager.app.adapters.CalendarAdapter;
 import com.seriesmanager.app.entities.Episode;
 import com.seriesmanager.app.entities.Season;
 import com.seriesmanager.app.entities.Show;
+import com.seriesmanager.app.entities.ShowLite;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -209,6 +211,26 @@ public class DBHelper extends SQLiteOpenHelper {
         return show;
     }
 
+    public ShowLite loadShowLite(int tvdbId) {
+        ShowLite show = null;
+        String query = "SELECT * FROM " + TABLE_SHOW + " WHERE " + COLUMN_ID + " = " + tvdbId;
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            show = new ShowLite();
+            show.setId(cursor.getInt(0));
+            show.setName(cursor.getString(1));
+            show.setFavorite(cursor.getInt(4) == 1);
+            show.setCover(cursor.getBlob(11));
+            show.setLastUpdated(cursor.getLong(13));
+        }
+
+        db.close();
+        return show;
+    }
+
     public Show loadShowExtraInfo(Show show) {
         if (show == null) {
             return null;
@@ -259,8 +281,8 @@ public class DBHelper extends SQLiteOpenHelper {
         return show;
     }
 
-    public List<Show> loadShowsAll() {
-        List<Show> lista = new ArrayList<Show>();
+    public List<ShowLite> loadShowsAll() {
+        List<ShowLite> lista = new ArrayList<ShowLite>();
         String query = "SELECT * FROM " + TABLE_SHOW + " ORDER BY " + COLUMN_FAVORITE + " DESC, "
                 + COLUMN_NAME + " ASC;";
 
@@ -269,7 +291,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
-                Show show = loadShow(cursor.getInt(0));
+                ShowLite show = loadShowLite(cursor.getInt(0));
                 lista.add(show);
                 cursor.moveToNext();
             }
@@ -291,10 +313,17 @@ public class DBHelper extends SQLiteOpenHelper {
         updateNextShowEpisode(show.getId());
     }
 
+    public void updateFavorite(int showId, boolean favorite) {
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_FAVORITE, favorite);
+        SQLiteDatabase db = getWritableDatabase();
+        db.update(TABLE_SHOW, values, COLUMN_ID + " = " + showId, null);
+        db.close();
+    }
+
     public void updateShow(Show show) {
         ContentValues values = new ContentValues();
 
-        //values.put(COLUMN_ID, show.getId());
         values.put(COLUMN_NAME, show.getName());
         values.put(COLUMN_OVERVIEW, show.getSummary());
         values.put(COLUMN_NETWORK, show.getNetwork());
@@ -365,7 +394,6 @@ public class DBHelper extends SQLiteOpenHelper {
     public void updateEpisode(Episode ep) {
         ContentValues values = new ContentValues();
 
-        //values.put(COLUMN_ID, ep.getId());
         values.put(COLUMN_ID_FOREIGN, ep.getSeason().getId());
         values.put(COLUMN_NUMBER, ep.getEpisodeNumber());
         values.put(COLUMN_NAME, ep.getName());
@@ -387,8 +415,8 @@ public class DBHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public List<Show> loadOverdueShows() {
-        List<Show> lista = new ArrayList<Show>();
+    public List<ShowLite> loadOverdueShows() {
+        List<ShowLite> lista = new ArrayList<ShowLite>();
         String query = "SELECT s." + COLUMN_ID_FOREIGN + ", COUNT(s."
                 + COLUMN_ID_FOREIGN + ") FROM " + TABLE_EPISODE + " e, " + TABLE_SEASON + " s "
                 + "WHERE e." + COLUMN_WATCHED + "=0 and e." + COLUMN_DATE + "<date('now') and e."
@@ -403,7 +431,14 @@ public class DBHelper extends SQLiteOpenHelper {
                     cursor.moveToNext();
             }
             while (!cursor.isAfterLast()) {
-                Show show = loadShow(cursor.getInt(0));
+                ShowLite show = null;
+                int showId = cursor.getInt(0);
+                for (ShowLite showi : Comm.showsInstances) {
+                    if (showi.getId() == showId) {
+                        show = showi;
+                        break;
+                    }
+                }
                 show.setNumberOverdue(cursor.getInt(1));
                 lista.add(show);
                 cursor.moveToNext();
@@ -468,8 +503,13 @@ public class DBHelper extends SQLiteOpenHelper {
         if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
                 CalendarAdapter.CalendarEpisode ep = new CalendarAdapter.CalendarEpisode();
-                ep.setShowId(cursor.getInt(0));
-                ep.setShowName(cursor.getString(1));
+                int showId = cursor.getInt(0);
+                for (ShowLite show : Comm.showsInstances) {
+                    if (show.getId() == showId) {
+                        ep.setShow(show);
+                        break;
+                    }
+                }
                 ep.setSeasonNumber(cursor.getInt(2));
                 ep.setEpisodeNumber(cursor.getInt(3));
                 ep.setId(cursor.getLong(4));
@@ -541,8 +581,8 @@ public class DBHelper extends SQLiteOpenHelper {
         return id;
     }
 
-    public List<Show> getFavoriteShows() {
-        List<Show> lista = new ArrayList<Show>();
+    public List<ShowLite> getFavoriteShows() {
+        List<ShowLite> lista = new ArrayList<ShowLite>();
         String query = "SELECT " + COLUMN_ID + " FROM " + TABLE_SHOW + " WHERE " + COLUMN_FAVORITE + " = 1";
 
         SQLiteDatabase db = getReadableDatabase();
@@ -550,8 +590,13 @@ public class DBHelper extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
-                Show show = loadShow(cursor.getInt(0));
-                lista.add(show);
+                int showId = cursor.getInt(0);
+                for (ShowLite showi : Comm.showsInstances) {
+                    if (showi.getId() == showId) {
+                        lista.add(showi);
+                        break;
+                    }
+                }
                 cursor.moveToNext();
             }
         }
@@ -575,8 +620,8 @@ public class DBHelper extends SQLiteOpenHelper {
         return value;
     }
 
-    public List<Show> getEndedShows() {
-        List<Show> lista = new ArrayList<Show>();
+    public List<ShowLite> getEndedShows() {
+        List<ShowLite> lista = new ArrayList<ShowLite>();
         String query = "SELECT " + COLUMN_ID + " FROM " + TABLE_SHOW + " WHERE " + COLUMN_STATUS + " = 'Ended'";
 
         SQLiteDatabase db = getReadableDatabase();
@@ -584,8 +629,13 @@ public class DBHelper extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
-                Show show = loadShow(cursor.getInt(0));
-                lista.add(show);
+                int showId = cursor.getInt(0);
+                for (ShowLite show : Comm.showsInstances) {
+                    if (show.getId() == showId) {
+                        lista.add(show);
+                        break;
+                    }
+                }
                 cursor.moveToNext();
             }
         }
@@ -609,8 +659,8 @@ public class DBHelper extends SQLiteOpenHelper {
         return value;
     }
 
-    public List<Show> getOnAirShows() {
-        List<Show> lista = new ArrayList<Show>();
+    public List<ShowLite> getOnAirShows() {
+        List<ShowLite> lista = new ArrayList<ShowLite>();
         String query = "SELECT " + COLUMN_ID + " FROM " + TABLE_SHOW + " WHERE " + COLUMN_STATUS + " = 'Continuing'";
 
         SQLiteDatabase db = getReadableDatabase();
@@ -618,8 +668,13 @@ public class DBHelper extends SQLiteOpenHelper {
 
         if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
-                Show show = loadShow(cursor.getInt(0));
-                lista.add(show);
+                int showId = cursor.getInt(0);
+                for (ShowLite show : Comm.showsInstances) {
+                    if (show.getId() == showId) {
+                        lista.add(show);
+                        break;
+                    }
+                }
                 cursor.moveToNext();
             }
         }

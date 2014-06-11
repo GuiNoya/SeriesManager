@@ -11,7 +11,6 @@ public class ShowSummary {
     int id;
     String name;
     String summary;
-    String network;
     Bitmap cover;
     boolean added = false;
 
@@ -48,24 +47,8 @@ public class ShowSummary {
         this.summary = summary;
     }
 
-    public String getNetwork() {
-        return network;
-    }
-
-    public void setNetwork(String network) {
-        this.network = network;
-    }
-
     public Bitmap getCover() {
         return cover;
-    }
-
-    public void setCover(Bitmap cover) {
-        this.cover = cover;
-    }
-
-    public void setCover(byte[] coverArray) {
-        this.cover = BitmapFactory.decodeByteArray(coverArray, 0, coverArray.length);
     }
 
     public void setCover(String coverLink) {
@@ -74,6 +57,14 @@ public class ShowSummary {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void setCover(Bitmap cover) {
+        this.cover = cover;
+    }
+
+    public void setCover(byte[] coverArray) {
+        cover = BitmapFactory.decodeByteArray(coverArray, 0, coverArray.length);
     }
 
     public byte[] getCoverInByteArray() {

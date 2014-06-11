@@ -22,6 +22,7 @@ import com.seriesmanager.app.Constants;
 import com.seriesmanager.app.R;
 import com.seriesmanager.app.database.DBHelper;
 import com.seriesmanager.app.entities.Episode;
+import com.seriesmanager.app.entities.Show;
 import com.seriesmanager.app.interfaces.OnEpisodeInteractionListener;
 import com.seriesmanager.app.interfaces.OnShowInteractionListener;
 import com.seriesmanager.app.ui.fragments.EpisodeFragment;
@@ -35,13 +36,16 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
     SectionsPagerAdapter mSectionsPagerAdapter;
     ViewPager mViewPager;
 
+    Show show;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         //TODO: Remove this, separate all instances of the show (communication only by ids or numbers)
-        if (Comm.actualShow == null) {
-            Comm.actualShow = new DBHelper(this, null).loadCompleteShow(getIntent().getExtras().getInt("show"));
+        Bundle b = getIntent().getExtras();
+        if (b != null) {
+            show = new DBHelper(this, null).loadCompleteShow(getIntent().getExtras().getInt("show"));
         }
 
         setContentView(R.layout.activity_show);
@@ -70,8 +74,7 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
             );
         }
 
-        Bundle b = getIntent().getExtras();
-        if (b != null && ((Integer) b.get("season")) != null) {
+        if (b != null && b.get("season") != null) {
             mViewPager.setCurrentItem(1);
         }
     }
@@ -88,10 +91,10 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
         if (id == R.id.action_settings) {
             return true;
         } else if (id == R.id.action_share_show) {
-            shareShow(Comm.actualShow.getName());
+            shareShow(show.getName());
             return true;
         } else if (id == R.id.action_remove) {
-            new DBHelper(this, null).deleteShow(Comm.actualShow.getId());
+            new DBHelper(this, null).deleteShow(show.getId());
             ((MainActivity) Comm.mainContext).onShowListInteraction();
             onBackPressed();
             return true;
@@ -119,9 +122,6 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
 
     @Override
     public void onBackPressed() {
-        Comm.actualShow = null;
-        Comm.actualSeason = null;
-        Comm.actualEpisode = null;
         super.onBackPressed();
     }
 
@@ -131,6 +131,10 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
         sendIntent.putExtra(Intent.EXTRA_TEXT, Constants.TRAKT_SHOW_URL + showName.trim().toLowerCase().replaceAll(" +", "+"));
         sendIntent.setType("text/plain");
         startActivity(Intent.createChooser(sendIntent, "Share show via"));
+    }
+
+    public Show getShow() {
+        return show;
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
@@ -189,7 +193,7 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
             if (getArguments().getInt(ARG_SECTION_NUMBER) == 1) {
                 rootView = inflater.inflate(R.layout.fragment_show_info, container, false);
                 final ImageView img = (ImageView) rootView.findViewById(R.id.image_plus);
-                if (Comm.actualShow.isFavorite()) {
+                if (show.isFavorite()) {
                     img.setImageResource(android.R.drawable.btn_star_big_on);
                 } else {
                     img.setImageResource(android.R.drawable.btn_star_big_off);
@@ -197,21 +201,21 @@ public class ShowActivity extends ActionBarActivity implements ActionBar.TabList
                 img.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Comm.actualShow.setFavorite(!Comm.actualShow.isFavorite());
-                        if (Comm.actualShow.isFavorite()) {
+                        show.setFavorite(!show.isFavorite());
+                        if (show.isFavorite()) {
                             ((ImageView) view).setImageResource(android.R.drawable.btn_star_big_on);
                         } else {
                             ((ImageView) view).setImageResource(android.R.drawable.btn_star_big_off);
                         }
-                        new DBHelper(getActivity(), null).updateShow(Comm.actualShow);
-                        ((OnShowInteractionListener) Comm.mainContext).onShowInteraction(Comm.actualShow);
+                        new DBHelper(getActivity(), null).updateShow(show);
+                        ((OnShowInteractionListener) Comm.mainContext).onShowInteraction(show);
                     }
                 });
-                ((TextView) rootView.findViewById(R.id.text_name)).setText(Comm.actualShow.getName());
-                ((TextView) rootView.findViewById(R.id.text_summary)).setText(Comm.actualShow.getSummary());
+                ((TextView) rootView.findViewById(R.id.text_name)).setText(show.getName());
+                ((TextView) rootView.findViewById(R.id.text_summary)).setText(show.getSummary());
                 SimpleDateFormat ft = new SimpleDateFormat("dd/MM/yyyy");
-                ((TextView) rootView.findViewById(R.id.text_data)).setText(ft.format(Comm.actualShow.getYear()));
-                ((TextView) rootView.findViewById(R.id.text_emissora)).setText(Comm.actualShow.getNetwork());
+                ((TextView) rootView.findViewById(R.id.text_data)).setText(ft.format(show.getYear()));
+                ((TextView) rootView.findViewById(R.id.text_emissora)).setText(show.getNetwork());
             } else if (getArguments().getInt(ARG_SECTION_NUMBER) == 2) {
                 rootView = inflater.inflate(R.layout.fragment_list_show_seasons, container, false);
                 getSupportFragmentManager().beginTransaction().add(R.id.container_seasons, EpisodeFragment.newInstance("", "")).commit();

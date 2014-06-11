@@ -21,6 +21,7 @@ import com.seriesmanager.app.entities.Show;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class SearchActivity extends ActionBarActivity {
 
     private ListView list;
@@ -91,7 +92,6 @@ public class SearchActivity extends ActionBarActivity {
             rowView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Comm.actualShow = sh;
                     Intent intent = new Intent(Comm.mainContext, ShowActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);

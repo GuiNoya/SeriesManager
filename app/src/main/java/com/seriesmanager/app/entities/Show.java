@@ -31,7 +31,6 @@ public class Show {
     private boolean favorite = false;
     private List<String> genres;
     private int numberOverdue;
-    private boolean loaded = false;
     private long lastUpdated;
 
     public Show() {
@@ -125,6 +124,10 @@ public class Show {
         return cover;
     }
 
+    public void setCover(byte[] coverArray) {
+        cover = BitmapFactory.decodeByteArray(coverArray, 0, coverArray.length);
+    }
+
     public void setCover(String coverLink) {
         try {
             this.cover = BitmapFactory.decodeStream(new NetworkGet(coverLink).get());
@@ -174,15 +177,15 @@ public class Show {
         return genres;
     }
 
+    public void setGenres(List<String> genres) {
+        this.genres = genres;
+    }
+
     public void setGenres(String genres) {
         StringTokenizer token = new StringTokenizer(genres, "|");
         while (token.hasMoreTokens()) {
             this.genres.add(token.nextToken());
         }
-    }
-
-    public void setGenres(List<String> genres) {
-        this.genres = genres;
     }
 
     public boolean isFavorite() {
@@ -199,14 +202,6 @@ public class Show {
 
     public void setNumberOverdue(int numberOverdue) {
         this.numberOverdue = numberOverdue;
-    }
-
-    public boolean isLoaded() {
-        return loaded;
-    }
-
-    public void setLoaded(boolean loaded) {
-        this.loaded = loaded;
     }
 
     public long getLastUpdated() {
@@ -261,6 +256,10 @@ public class Show {
         return airTime;
     }
 
+    public void setAirTime(Date airTime) {
+        this.airTime = airTime;
+    }
+
     //Getters and Setters that need some kind of conversion between types
     public void setAirTime(long airTime) {
         Date date = new Date(airTime);
@@ -270,10 +269,6 @@ public class Show {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-    }
-
-    public void setAirTime(Date airTime) {
-        this.airTime = airTime;
     }
 
     public String getGenresPlainText() {
@@ -288,9 +283,5 @@ public class Show {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         this.cover.compress(Bitmap.CompressFormat.JPEG, 100, bos);
         return bos.toByteArray();
-    }
-
-    public void setCover(byte[] coverArray) {
-        this.cover = BitmapFactory.decodeByteArray(coverArray, 0, coverArray.length);
     }
 }
